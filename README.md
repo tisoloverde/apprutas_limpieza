@@ -1,16 +1,20 @@
-# solo_verde
+# SOLO VERDE APP MOBILE
 
-A new Flutter project.
+### Steps
 
-## Getting Started
+- [x] Install Google Maps Flutter in Mac with Chip M1:
 
-This project is a starting point for a Flutter application.
+```
+~ flutter clean
+~ flutter pub get
+~ cd ios/
+~ pod install
+~ cd ..
+~ flutter run
+```
 
-A few resources to get you started if this is your first Flutter project:
+- [x] iOS devices availables:
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```
+~ >= iPhone 11
+```

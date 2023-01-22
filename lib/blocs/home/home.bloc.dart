@@ -1,5 +1,13 @@
-// import 'package:rxdart/rxdart.dart';
+import 'package:rxdart/rxdart.dart';
 
 class HomeBloc {
-  dispose() {}
+  final privateIsLoading = BehaviorSubject<bool>.seeded(true);
+
+  Function(bool) get changeIsLoading => privateIsLoading.sink.add;
+
+  Stream<bool> get isLoading => privateIsLoading.stream;
+
+  dispose() {
+    privateIsLoading.close();
+  }
 }
