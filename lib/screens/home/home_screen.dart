@@ -12,6 +12,8 @@ import 'package:solo_verde/models/geo.model.dart';
 import 'package:solo_verde/widgets/loading_app.dart';
 
 import 'package:solo_verde/values/colors.dart' as colors;
+import 'package:solo_verde/values/dimens.dart' as dimens;
+import 'package:solo_verde/widgets/stream_input_text.dart';
 
 class HomeScreen extends StatefulWidget {
   static String routeName = "/home";
@@ -25,6 +27,7 @@ class HomeScreen extends StatefulWidget {
 class HomeScreenState extends State<HomeScreen> {
   final GlobalKey<ScaffoldState> _key = GlobalKey();
   bool _isInit = true;
+  double height = 120;
 
   HomeBloc _bloc = HomeBloc();
   final _controller = Completer<GoogleMapController>();
@@ -69,7 +72,12 @@ class HomeScreenState extends State<HomeScreen> {
             }
             return Loading(
               inAsyncCall: snapshot.data ?? true,
-              child: _body(),
+              child: Column(
+                children: [
+                  _body(),
+                  _bottom(),
+                ],
+              ),
             );
           },
         ),
@@ -78,6 +86,13 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _body() {
+    return SizedBox(
+      height: MediaQuery.of(context).size.height - height,
+      child: _map(),
+    );
+  }
+
+  Widget _map() {
     return StreamBuilder(
       stream: _bloc.lstRoutes,
       builder: (BuildContext ctx, AsyncSnapshot<List<RoutePlan>> snapshot) {
@@ -116,6 +131,55 @@ class HomeScreenState extends State<HomeScreen> {
           },
         );
       },
+    );
+  }
+
+  Widget _bottom() {
+    return Container(
+      width: MediaQuery.of(context).size.width,
+      height: height,
+      decoration: const BoxDecoration(color: Colors.transparent),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(30),
+            topRight: Radius.circular(30),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.5),
+              spreadRadius: 5,
+              blurRadius: 7,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.only(
+          left: dimens.paddingCardX,
+          right: dimens.paddingCardX,
+          // top: 30,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Text(
+              'Tu ubicación es:',
+              textAlign: TextAlign.left,
+              style: TextStyle(
+                color: colors.disabled,
+                fontSize: 14,
+                fontWeight: FontWeight.w300,
+              ),
+            ),
+            StreamInputText(
+              streamVal: _bloc.address,
+              onChange: (val) => _bloc.changeAddress(val),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
