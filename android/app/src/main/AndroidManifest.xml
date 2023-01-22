@@ -22,6 +22,7 @@
               />
             <meta-data android:name="com.google.android.geo.API_KEY"
               android:value="AIzaSyBqf5FJuJ77EQUYeo6ig9dsg7nACT62rU0"/>
+            <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>

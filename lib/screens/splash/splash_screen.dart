@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:solo_verde/services/location.service.dart';
+
 import 'package:solo_verde/screens/home/home_screen.dart';
 
 import 'package:solo_verde/helpers/functions.helper.dart';
@@ -22,7 +24,14 @@ class SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _startTime();
+    LocationService.handleLocationPermission().then((Map<String, dynamic> val) {
+      bool flag = val['flag'];
+      if (flag) {
+        _startTime();
+      } else {
+        print(val['error']);
+      }
+    });
   }
 
   _startTime() async {
