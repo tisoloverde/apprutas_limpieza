@@ -3,14 +3,15 @@ import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import 'package:solo_verde/services/location.service.dart';
+
 import 'package:solo_verde/blocs/home/home.bloc.dart';
 
 import 'package:solo_verde/models/geo.model.dart';
 
-import 'package:solo_verde/services/location.service.dart';
+import 'package:solo_verde/widgets/loading_app.dart';
 
 import 'package:solo_verde/values/colors.dart' as colors;
-import 'package:solo_verde/widgets/loading_app.dart';
 
 class HomeScreen extends StatefulWidget {
   static String routeName = "/home";
@@ -34,6 +35,7 @@ class HomeScreenState extends State<HomeScreen> {
     if (!_isInit) return;
     setState(() => _isInit = false);
     _bloc = Provider.of<HomeBloc>(context);
+    _bloc.init();
   }
 
   @override
@@ -77,25 +79,40 @@ class HomeScreenState extends State<HomeScreen> {
 
   Widget _body() {
     return StreamBuilder(
-      stream: _bloc.currentPosition,
-      builder: (
-        BuildContext ctx,
-        AsyncSnapshot<Position> snapshot,
-      ) {
+      stream: _bloc.lstRoutes,
+      builder: (BuildContext ctx, AsyncSnapshot<List<RoutePlan>> snapshot) {
         if (snapshot.hasError) {
           return Center(child: Text(snapshot.error.toString()));
         }
-        if (!snapshot.hasData) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        Position position = snapshot.data ?? _bloc.defaultPosition();
-        return GoogleMap(
-          mapType: MapType.normal,
-          initialCameraPosition: _getPosition(position.lat, position.lng),
-          markers: {_getMarker(position.lat, position.lng)},
-          onMapCreated: (GoogleMapController controller) {
-            _bloc.changeIsLoading(false);
-            _controller.complete(controller);
+        List<RoutePlan> routes = snapshot.data ?? [];
+        return StreamBuilder(
+          stream: _bloc.currentPosition,
+          builder: (BuildContext ct, AsyncSnapshot<Position> snp) {
+            if (snp.hasError) {
+              return Center(child: Text(snp.error.toString()));
+            }
+            if (!snp.hasData) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            Position position = snp.data ?? _bloc.defaultPosition();
+            Set<Polyline> setRoutes = routes
+                .asMap()
+                .map((int idx, RoutePlan route) => MapEntry(
+                      idx,
+                      _getCoords(idx, route),
+                    ))
+                .values
+                .toSet();
+            return GoogleMap(
+              mapType: MapType.normal,
+              initialCameraPosition: _getPosition(position.lat, position.lng),
+              markers: {_getMarker(position.lat, position.lng)},
+              polylines: setRoutes,
+              onMapCreated: (GoogleMapController controller) {
+                _bloc.changeIsLoading(false);
+                _controller.complete(controller);
+              },
+            );
           },
         );
       },
@@ -120,5 +137,18 @@ class HomeScreenState extends State<HomeScreen> {
       position: LatLng(lat, lng),
     );
     return kGooglePlexMarker;
+  }
+
+  Polyline _getCoords(int index, RoutePlan route) {
+    List<LatLng> coords = route.coords
+        .map(
+          (Position pos) => LatLng(pos.lat, pos.lng),
+        )
+        .toList();
+    final Polyline polyline = Polyline(
+      polylineId: PolylineId('_kPolyline_$index'),
+      points: coords,
+    );
+    return polyline;
   }
 }
