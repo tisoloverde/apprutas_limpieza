@@ -8,4 +8,8 @@ class AppConfig {
   static String ctxUrl = dotenv.env['API_CTX'] ?? 'api/v1';
   static int timeout = int.parse(dotenv.env['API_TIMEOUT'] ?? '20'); // seconds
   static String language = dotenv.env['LANGUAGE'] ?? 'es';
+  static double latDefault =
+      double.parse(dotenv.env['LATITUDE_DEFAULT'] ?? '0');
+  static double lngDefault =
+      double.parse(dotenv.env['LONGITUDE_DEFAULT'] ?? '0');
 }

@@ -31,4 +31,14 @@ class LocationService {
     }
     return {"flag": true};
   }
+
+  static Future<Map<String, double>> currentLocation() async {
+    Position position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+    return {
+      "lat": position.latitude,
+      "lng": position.longitude,
+    };
+  }
 }

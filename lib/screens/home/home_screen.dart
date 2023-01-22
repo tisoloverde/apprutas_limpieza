@@ -5,6 +5,10 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import 'package:solo_verde/blocs/home/home.bloc.dart';
 
+import 'package:solo_verde/models/geo.model.dart';
+
+import 'package:solo_verde/services/location.service.dart';
+
 import 'package:solo_verde/values/colors.dart' as colors;
 import 'package:solo_verde/widgets/loading_app.dart';
 
@@ -22,12 +26,7 @@ class HomeScreenState extends State<HomeScreen> {
   bool _isInit = true;
 
   HomeBloc _bloc = HomeBloc();
-  final Completer<GoogleMapController> _controller =
-      Completer<GoogleMapController>();
-  static const CameraPosition _kGooglePlex = CameraPosition(
-    target: LatLng(37.42796133580664, -122.085749655962),
-    zoom: 14.4746,
-  );
+  final _controller = Completer<GoogleMapController>();
 
   @override
   void didChangeDependencies() {
@@ -40,6 +39,9 @@ class HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    LocationService.currentLocation().then((value) {
+      _bloc.changeCurrentPosition(Position.fromJson(value));
+    });
   }
 
   @override
@@ -74,13 +76,49 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _body() {
-    return GoogleMap(
-      mapType: MapType.normal,
-      initialCameraPosition: _kGooglePlex,
-      onMapCreated: (GoogleMapController controller) {
-        _bloc.changeIsLoading(false);
-        _controller.complete(controller);
+    return StreamBuilder(
+      stream: _bloc.currentPosition,
+      builder: (
+        BuildContext ctx,
+        AsyncSnapshot<Position> snapshot,
+      ) {
+        if (snapshot.hasError) {
+          return Center(child: Text(snapshot.error.toString()));
+        }
+        if (!snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        Position position = snapshot.data ?? _bloc.defaultPosition();
+        return GoogleMap(
+          mapType: MapType.normal,
+          initialCameraPosition: _getPosition(position.lat, position.lng),
+          markers: {_getMarker(position.lat, position.lng)},
+          onMapCreated: (GoogleMapController controller) {
+            _bloc.changeIsLoading(false);
+            _controller.complete(controller);
+          },
+        );
       },
     );
+  }
+
+  CameraPosition _getPosition(double lat, double lng) {
+    final CameraPosition kGooglePlex = CameraPosition(
+      bearing: 192.8334901395799,
+      target: LatLng(lat, lng),
+      tilt: 59.440717697143555,
+      zoom: 19.151926040649414,
+    );
+    return kGooglePlex;
+  }
+
+  Marker _getMarker(double lat, double lng) {
+    final Marker kGooglePlexMarker = Marker(
+      markerId: const MarkerId('_kGooglePlex'),
+      infoWindow: const InfoWindow(title: 'Mi Ubicación'),
+      icon: BitmapDescriptor.defaultMarker,
+      position: LatLng(lat, lng),
+    );
+    return kGooglePlexMarker;
   }
 }
