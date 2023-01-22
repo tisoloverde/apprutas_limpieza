@@ -104,9 +104,9 @@ class HomeScreenState extends State<HomeScreen> {
 
   CameraPosition _getPosition(double lat, double lng) {
     final CameraPosition kGooglePlex = CameraPosition(
-      bearing: 192.8334901395799,
+      // bearing: 192.8334901395799,
       target: LatLng(lat, lng),
-      tilt: 59.440717697143555,
+      // tilt: 59.440717697143555,
       zoom: 19.151926040649414,
     );
     return kGooglePlex;
