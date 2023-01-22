@@ -10,7 +10,7 @@ class InputText extends StatelessWidget {
   final Function(String) onChange;
   final bool disabled;
   final TextEditingController? controller;
-  final Function(void)? onEnter;
+  final Function(String)? onEnter;
 
   const InputText({
     super.key,
@@ -52,7 +52,7 @@ class InputText extends StatelessWidget {
         ),
         // textAlign: TextAlign.center,
         onChanged: onChange,
-        onFieldSubmitted: onEnter,
+        onFieldSubmitted: onEnter != null ? (val) => onEnter!(val) : null,
       ),
     );
   }

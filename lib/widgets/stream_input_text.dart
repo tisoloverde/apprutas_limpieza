@@ -5,11 +5,13 @@ import 'package:solo_verde/widgets/input_text.dart';
 class StreamInputText extends StatefulWidget {
   final Stream<dynamic> streamVal;
   final Function(dynamic) onChange;
+  final Function(String)? onEnter;
 
   const StreamInputText({
     super.key,
     required this.streamVal,
     required this.onChange,
+    this.onEnter,
   });
 
   @override
@@ -36,6 +38,7 @@ class StreamInputTextState extends State<StreamInputText> {
           // controller: _controller,
           initialValue: snapshot.data ?? '',
           onChange: (String? val) => widget.onChange(val ?? ''),
+          onEnter: widget.onEnter,
         );
       },
     );

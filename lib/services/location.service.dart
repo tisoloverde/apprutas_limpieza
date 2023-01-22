@@ -1,5 +1,9 @@
 import 'package:geolocator/geolocator.dart';
 
+import 'package:solo_verde/helpers/http.helper.dart';
+
+import 'package:solo_verde/config/app.config.dart';
+
 class LocationService {
   static Future<Map<String, dynamic>> handleLocationPermission() async {
     bool serviceEnabled;
@@ -40,5 +44,14 @@ class LocationService {
       "lat": position.latitude,
       "lng": position.longitude,
     };
+  }
+
+  static Future<void> getPlace(String q) async {
+    String url = AppConfig.googleMapsApi
+        .replaceAll('{{q}}', q)
+        .replaceAll('{{key}}', AppConfig.googleMapsKey);
+    dynamic response = await HttpRequest().getHttp(url);
+    print("---response--");
+    print(response);
   }
 }

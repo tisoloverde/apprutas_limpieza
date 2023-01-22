@@ -72,11 +72,14 @@ class HomeScreenState extends State<HomeScreen> {
             }
             return Loading(
               inAsyncCall: snapshot.data ?? true,
-              child: Column(
-                children: [
-                  _body(),
-                  _bottom(),
-                ],
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _body(),
+                    _bottom(),
+                  ],
+                ),
               ),
             );
           },
@@ -176,6 +179,7 @@ class HomeScreenState extends State<HomeScreen> {
             StreamInputText(
               streamVal: _bloc.address,
               onChange: (val) => _bloc.changeAddress(val),
+              onEnter: (String val) => LocationService.getPlace(val),
             ),
           ],
         ),
