@@ -13,11 +13,15 @@ class Position {
 
 class RoutePlan {
   String name = '';
+  String startPoint = '';
+  String endPoint = '';
   List<Position> coords = [];
 
   RoutePlan();
 
   RoutePlan.fromJson(Map<String, dynamic> json)
       : name = json['name'],
+        startPoint = json['startPoint'],
+        endPoint = json['endPoint'],
         coords = Data.transformListPosition(json['coords']);
 }

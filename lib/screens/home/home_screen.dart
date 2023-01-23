@@ -29,7 +29,7 @@ class HomeScreen extends StatefulWidget {
 class HomeScreenState extends State<HomeScreen> {
   final GlobalKey<ScaffoldState> _key = GlobalKey();
   bool _isInit = true;
-  final double _height = 120;
+  final double _height = 320;
   final double _zoom = 1; // 19.151926040649414;
 
   HomeBloc _bloc = HomeBloc();
@@ -87,15 +87,7 @@ class HomeScreenState extends State<HomeScreen> {
             }
             return Loading(
               inAsyncCall: snapshot.data ?? true,
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    _body(),
-                    _bottom(),
-                  ],
-                ),
-              ),
+              child: _body(),
             );
           },
         ),
@@ -104,13 +96,6 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _body() {
-    return SizedBox(
-      height: MediaQuery.of(context).size.height - _height,
-      child: _map(),
-    );
-  }
-
-  Widget _map() {
     return StreamBuilder(
       stream: _bloc.lstRoutes,
       builder: (BuildContext ctx, AsyncSnapshot<List<RoutePlan>> snapshot) {
@@ -128,7 +113,7 @@ class HomeScreenState extends State<HomeScreen> {
               return const Center(child: CircularProgressIndicator());
             }
             Position position = snp.data ?? _bloc.defaultPosition();
-            Set<Polyline> setRoutes = routes
+            Set<Polyline> lstRoutes = routes
                 .asMap()
                 .map((int idx, RoutePlan route) => MapEntry(
                       idx,
@@ -136,20 +121,17 @@ class HomeScreenState extends State<HomeScreen> {
                     ))
                 .values
                 .toSet();
-            return GoogleMap(
-              mapType: MapType.normal,
-              initialCameraPosition: _getPosition(position.lat, position.lng),
-              markers: {_getMarker(position.lat, position.lng)},
-              polylines: setRoutes,
-              gestureRecognizers: {
-                Factory<OneSequenceGestureRecognizer>(
-                  () => EagerGestureRecognizer(),
-                ),
-              },
-              onMapCreated: (GoogleMapController controller) {
-                _bloc.changeIsLoading(false);
-                _controller.complete(controller);
-              },
+            return SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height - _height,
+                    child: _map(lstRoutes, position),
+                  ),
+                  _bottom(routes),
+                ],
+              ),
             );
           },
         );
@@ -157,7 +139,25 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _bottom() {
+  Widget _map(Set<Polyline> lstRoutes, Position position) {
+    return GoogleMap(
+      mapType: MapType.normal,
+      initialCameraPosition: _getPosition(position.lat, position.lng),
+      markers: {_getMarker(position.lat, position.lng)},
+      polylines: lstRoutes,
+      gestureRecognizers: {
+        Factory<OneSequenceGestureRecognizer>(
+          () => EagerGestureRecognizer(),
+        ),
+      },
+      onMapCreated: (GoogleMapController controller) {
+        _bloc.changeIsLoading(false);
+        _controller.complete(controller);
+      },
+    );
+  }
+
+  Widget _bottom(List<RoutePlan> lstRoutes) {
     return Container(
       width: MediaQuery.of(context).size.width,
       height: _height,
@@ -181,11 +181,11 @@ class HomeScreenState extends State<HomeScreen> {
         padding: const EdgeInsets.only(
           left: dimens.paddingCardX,
           right: dimens.paddingCardX,
-          // top: 30,
+          top: 30,
         ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
               'Tu ubicación es:',
@@ -211,9 +211,68 @@ class HomeScreenState extends State<HomeScreen> {
                 }
               },
             ),
+            const SizedBox(height: 20),
+            _lstRoutePlans(lstRoutes),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _lstRoutePlans(List<RoutePlan> lstRoutes) {
+    return Column(
+      children: lstRoutes
+          .map<Widget>(
+            (RoutePlan route) => Container(
+              padding: const EdgeInsets.only(
+                left: dimens.paddingCardX,
+                right: dimens.paddingCardX,
+              ),
+              decoration: BoxDecoration(
+                color: colors.background,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.location_city),
+                          Text(route.name),
+                        ],
+                      ),
+                    ],
+                  ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Row(
+                        children: [
+                          Text('Inicio: ${route.startPoint}'),
+                          const Icon(Icons.house),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          Text('Fin: ${route.endPoint}'),
+                          const Icon(Icons.house),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          )
+          .toList(),
     );
   }
 
