@@ -27,7 +27,8 @@ class HomeScreen extends StatefulWidget {
 class HomeScreenState extends State<HomeScreen> {
   final GlobalKey<ScaffoldState> _key = GlobalKey();
   bool _isInit = true;
-  double height = 120;
+  final double _height = 120;
+  final double _zoom = 19.151926040649414;
 
   HomeBloc _bloc = HomeBloc();
   final _controller = Completer<GoogleMapController>();
@@ -47,6 +48,18 @@ class HomeScreenState extends State<HomeScreen> {
     LocationService.currentLocation().then((value) {
       _bloc.changeCurrentPosition(Position.fromJson(value));
     });
+  }
+
+  Future<void> _moveCamera(double lat, double lng) async {
+    final GoogleMapController controller = await _controller.future;
+    controller.moveCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(
+          target: LatLng(lat, lng),
+          zoom: _zoom,
+        ),
+      ),
+    );
   }
 
   @override
@@ -90,7 +103,7 @@ class HomeScreenState extends State<HomeScreen> {
 
   Widget _body() {
     return SizedBox(
-      height: MediaQuery.of(context).size.height - height,
+      height: MediaQuery.of(context).size.height - _height,
       child: _map(),
     );
   }
@@ -140,7 +153,7 @@ class HomeScreenState extends State<HomeScreen> {
   Widget _bottom() {
     return Container(
       width: MediaQuery.of(context).size.width,
-      height: height,
+      height: _height,
       decoration: const BoxDecoration(color: Colors.transparent),
       child: Container(
         decoration: BoxDecoration(
@@ -179,7 +192,15 @@ class HomeScreenState extends State<HomeScreen> {
             StreamInputText(
               streamVal: _bloc.address,
               onChange: (val) => _bloc.changeAddress(val),
-              onEnter: (String val) => LocationService.getPlace(val),
+              onEnter: (String val) {
+                LocationService.getPlace(val).then((value) {
+                  Position position = Position();
+                  position.lat = value['lat'];
+                  position.lng = value['lng'];
+                  _bloc.changeCurrentPosition(position);
+                  _moveCamera(position.lat, position.lng);
+                });
+              },
             ),
           ],
         ),

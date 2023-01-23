@@ -14,5 +14,5 @@ class AppConfig {
       double.parse(dotenv.env['LONGITUDE_DEFAULT'] ?? '0');
   static String googleMapsKey = dotenv.env['GOOGLE_MAPS_KEY'] ?? '';
   static String googleMapsApi = dotenv.env['GOOGLE_MAPS_API'] ??
-      'https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input={{q}}&inputtype=textquery&key={{key}}';
+      'https://maps.googleapis.com/maps/api/place';
 }
