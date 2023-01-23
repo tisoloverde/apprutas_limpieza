@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -28,7 +30,7 @@ class HomeScreenState extends State<HomeScreen> {
   final GlobalKey<ScaffoldState> _key = GlobalKey();
   bool _isInit = true;
   final double _height = 120;
-  final double _zoom = 19.151926040649414;
+  final double _zoom = 1; // 19.151926040649414;
 
   HomeBloc _bloc = HomeBloc();
   final _controller = Completer<GoogleMapController>();
@@ -139,6 +141,11 @@ class HomeScreenState extends State<HomeScreen> {
               initialCameraPosition: _getPosition(position.lat, position.lng),
               markers: {_getMarker(position.lat, position.lng)},
               polylines: setRoutes,
+              gestureRecognizers: {
+                Factory<OneSequenceGestureRecognizer>(
+                  () => EagerGestureRecognizer(),
+                ),
+              },
               onMapCreated: (GoogleMapController controller) {
                 _bloc.changeIsLoading(false);
                 _controller.complete(controller);
@@ -193,13 +200,15 @@ class HomeScreenState extends State<HomeScreen> {
               streamVal: _bloc.address,
               onChange: (val) => _bloc.changeAddress(val),
               onEnter: (String val) {
-                LocationService.getPlace(val).then((value) {
-                  Position position = Position();
-                  position.lat = value['lat'];
-                  position.lng = value['lng'];
-                  _bloc.changeCurrentPosition(position);
-                  _moveCamera(position.lat, position.lng);
-                });
+                if (val.length >= 3) {
+                  LocationService.getPlace(val).then((value) {
+                    Position position = Position();
+                    position.lat = value['lat'];
+                    position.lng = value['lng'];
+                    _bloc.changeCurrentPosition(position);
+                    _moveCamera(position.lat, position.lng);
+                  });
+                }
               },
             ),
           ],
