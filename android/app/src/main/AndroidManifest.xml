@@ -3,10 +3,13 @@
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 
-   <application
+    <application
         android:label="solo_verde"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <meta-data
+          android:name="com.google.android.geo.API_KEY"
+          android:value="AIzaSyBqf5FJuJ77EQUYeo6ig9dsg7nACT62rU0"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -23,8 +26,6 @@
               android:name="io.flutter.embedding.android.NormalTheme"
               android:resource="@style/NormalTheme"
               />
-            <meta-data android:name="com.google.android.geo.API_KEY"
-              android:value="AIzaSyBqf5FJuJ77EQUYeo6ig9dsg7nACT62rU0"/>
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
