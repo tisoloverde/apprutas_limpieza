@@ -30,6 +30,12 @@ class HomeBloc {
   Stream<String> get address => privateAddress.stream;
 
   void init() async {
+    String address = await LocationService.getAddress(
+      AppConfig.latDefault,
+      AppConfig.lngDefault,
+    );
+    privateAddress.value = address;
+
     privateRouteList.value = Data.transformListRoutePlan(AppConstants.routes);
     privatePolylineSet.value = {};
     for (var route in privateRouteList.value) {
