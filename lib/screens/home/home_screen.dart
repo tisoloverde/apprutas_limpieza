@@ -12,10 +12,10 @@ import 'package:solo_verde/blocs/home/home.bloc.dart';
 import 'package:solo_verde/models/geo.model.dart';
 
 import 'package:solo_verde/widgets/loading_app.dart';
+import 'package:solo_verde/widgets/stream_input_text.dart';
 
 import 'package:solo_verde/values/colors.dart' as colors;
 import 'package:solo_verde/values/dimens.dart' as dimens;
-import 'package:solo_verde/widgets/stream_input_text.dart';
 
 class HomeScreen extends StatefulWidget {
   static String routeName = "/home";
@@ -30,7 +30,7 @@ class HomeScreenState extends State<HomeScreen> {
   final GlobalKey<ScaffoldState> _key = GlobalKey();
   bool _isInit = true;
   final double _height = 320;
-  final double _zoom = 1; // 19.151926040649414;
+  final double _zoom = 15; // 19.151926040649414;
 
   HomeBloc _bloc = HomeBloc();
   final _controller = Completer<GoogleMapController>();
@@ -98,40 +98,41 @@ class HomeScreenState extends State<HomeScreen> {
   Widget _body() {
     return StreamBuilder(
       stream: _bloc.lstRoutes,
-      builder: (BuildContext ctx, AsyncSnapshot<List<RoutePlan>> snapshot) {
-        if (snapshot.hasError) {
-          return Center(child: Text(snapshot.error.toString()));
+      builder: (BuildContext cont, AsyncSnapshot<List<RoutePlan>> snapp) {
+        if (snapp.hasError) {
+          return Center(child: Text(snapp.error.toString()));
         }
-        List<RoutePlan> routes = snapshot.data ?? [];
+        List<RoutePlan> routes = snapp.data ?? [];
         return StreamBuilder(
-          stream: _bloc.currentPosition,
-          builder: (BuildContext ct, AsyncSnapshot<Position> snp) {
-            if (snp.hasError) {
-              return Center(child: Text(snp.error.toString()));
+          stream: _bloc.setPolyline,
+          builder: (BuildContext ctx, AsyncSnapshot<Set<Polyline>> snapshot) {
+            if (snapshot.hasError) {
+              return Center(child: Text(snapshot.error.toString()));
             }
-            if (!snp.hasData) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            Position position = snp.data ?? _bloc.defaultPosition();
-            Set<Polyline> lstRoutes = routes
-                .asMap()
-                .map((int idx, RoutePlan route) => MapEntry(
-                      idx,
-                      _getCoords(idx, route),
-                    ))
-                .values
-                .toSet();
-            return SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height - _height,
-                    child: _map(lstRoutes, position),
+            Set<Polyline> polylines = snapshot.data ?? {};
+            return StreamBuilder(
+              stream: _bloc.currentPosition,
+              builder: (BuildContext ct, AsyncSnapshot<Position> snp) {
+                if (snp.hasError) {
+                  return Center(child: Text(snp.error.toString()));
+                }
+                if (!snp.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                Position position = snp.data ?? _bloc.defaultPosition();
+                return SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height - _height,
+                        child: _map(polylines, position),
+                      ),
+                      _bottom(routes),
+                    ],
                   ),
-                  _bottom(routes),
-                ],
-              ),
+                );
+              },
             );
           },
         );
@@ -142,8 +143,8 @@ class HomeScreenState extends State<HomeScreen> {
   Widget _map(Set<Polyline> lstRoutes, Position position) {
     return GoogleMap(
       mapType: MapType.normal,
-      initialCameraPosition: _getPosition(position.lat, position.lng),
-      markers: {_getMarker(position.lat, position.lng)},
+      initialCameraPosition: _getPosition(position.oLat, position.oLng),
+      markers: {_getMarker(position.oLat, position.oLng)},
       polylines: lstRoutes,
       gestureRecognizers: {
         Factory<OneSequenceGestureRecognizer>(
@@ -203,10 +204,10 @@ class HomeScreenState extends State<HomeScreen> {
                 if (val.length >= 3) {
                   LocationService.getPlace(val).then((value) {
                     Position position = Position();
-                    position.lat = value['lat'];
-                    position.lng = value['lng'];
+                    position.oLat = value['lat'];
+                    position.oLng = value['lng'];
                     _bloc.changeCurrentPosition(position);
-                    _moveCamera(position.lat, position.lng);
+                    _moveCamera(position.oLat, position.oLng);
                   });
                 }
               },
@@ -281,7 +282,7 @@ class HomeScreenState extends State<HomeScreen> {
       // bearing: 192.8334901395799,
       target: LatLng(lat, lng),
       // tilt: 59.440717697143555,
-      zoom: 19.151926040649414,
+      zoom: _zoom,
     );
     return kGooglePlex;
   }
@@ -294,18 +295,5 @@ class HomeScreenState extends State<HomeScreen> {
       position: LatLng(lat, lng),
     );
     return kGooglePlexMarker;
-  }
-
-  Polyline _getCoords(int index, RoutePlan route) {
-    List<LatLng> coords = route.coords
-        .map(
-          (Position pos) => LatLng(pos.lat, pos.lng),
-        )
-        .toList();
-    final Polyline polyline = Polyline(
-      polylineId: PolylineId('_kPolyline_$index'),
-      points: coords,
-    );
-    return polyline;
   }
 }

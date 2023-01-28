@@ -1,14 +1,18 @@
 import 'package:solo_verde/helpers/data.helper.dart';
 
 class Position {
-  late double lat;
-  late double lng;
+  late double oLat;
+  late double oLng;
+  late double fLat;
+  late double fLng;
 
   Position();
 
   Position.fromJson(Map<String, dynamic> json)
-      : lat = json['lat'],
-        lng = json['lng'];
+      : oLat = json['oLat'] ?? 0.0,
+        oLng = json['oLng'] ?? 0.0,
+        fLat = json['fLat'] ?? 0.0,
+        fLng = json['fLng'] ?? 0.0;
 }
 
 class RoutePlan {

@@ -1,4 +1,7 @@
+import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import 'package:solo_verde/helpers/http.helper.dart';
 
@@ -41,8 +44,8 @@ class LocationService {
       desiredAccuracy: LocationAccuracy.high,
     );
     return {
-      "lat": position.latitude,
-      "lng": position.longitude,
+      "oLat": position.latitude,
+      "oLng": position.longitude,
     };
   }
 
@@ -67,5 +70,38 @@ class LocationService {
     } else {
       return {};
     }
+  }
+
+  static Future<Polyline> getPolyline(
+    String id,
+    Color color,
+    double oLat,
+    double oLng,
+    double fLat,
+    double fLng,
+  ) async {
+    String k = AppConfig.googleMapsKey;
+    PolylinePoints polylinePoints = PolylinePoints();
+    PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
+      k,
+      PointLatLng(oLat, oLng),
+      PointLatLng(fLat, fLng),
+      travelMode: TravelMode.driving,
+      // wayPoints: [PolylineWayPoint(location: "Chile")],
+    );
+    List<LatLng> points = [];
+    if (result.points.isNotEmpty) {
+      for (var point in result.points) {
+        points.add(LatLng(point.latitude, point.longitude));
+      }
+    }
+
+    final Polyline polyline = Polyline(
+      polylineId: PolylineId('_kPolyline_$id'),
+      points: points,
+      color: color,
+    );
+
+    return polyline;
   }
 }
