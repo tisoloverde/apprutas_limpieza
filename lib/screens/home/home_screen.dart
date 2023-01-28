@@ -32,7 +32,8 @@ class HomeScreen extends StatefulWidget {
 class HomeScreenState extends State<HomeScreen> {
   final GlobalKey<ScaffoldState> _key = GlobalKey();
   bool _isInit = true;
-  final double _height = 320;
+  final double _height = 100;
+  final double _heightModal = 320;
   final double _zoom = 15; // 19.151926040649414;
   Timer? _timer;
 
@@ -81,6 +82,59 @@ class HomeScreenState extends State<HomeScreen> {
           zoom: _zoom,
         ),
       ),
+    );
+  }
+
+  void _modal(List<RoutePlan> lstRoutes) {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return Container(
+          height: MediaQuery.of(context).size.height - _heightModal,
+          padding: EdgeInsets.only(
+            left: 20,
+            right: 20,
+            top: 20,
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(30),
+              topRight: Radius.circular(30),
+            ),
+          ),
+          child: ListView(
+            // mainAxisAlignment: MainAxisAlignment.center,
+            // crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              StreamInputText(
+                streamVal: _bloc.address,
+                onChange: (val) => _bloc.changeAddress(val),
+                onEnter: (String val) {
+                  if (val.length >= 3) {
+                    LocationService.getPlace(val).then((value) {
+                      Position position = Position();
+                      position.oLat = value['lat'];
+                      position.oLng = value['lng'];
+                      _bloc.changeCurrentPosition(position);
+                      _moveCamera(position.oLat, position.oLng);
+                      Navigator.pop(context);
+                    });
+                  }
+                },
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                height: MediaQuery.of(context).size.height - _heightModal - 70,
+                child: _lstRoutePlans(lstRoutes),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -180,69 +234,73 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _bottom(List<RoutePlan> lstRoutes) {
-    return Container(
-      width: MediaQuery.of(context).size.width,
-      height: _height,
-      decoration: const BoxDecoration(color: Colors.transparent),
+    return GestureDetector(
       child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(30),
-            topRight: Radius.circular(30),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.5),
-              spreadRadius: 5,
-              blurRadius: 7,
-              offset: const Offset(0, 3),
+        width: MediaQuery.of(context).size.width,
+        height: _height,
+        color: Colors.transparent,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(30),
+              topRight: Radius.circular(30),
             ),
-          ],
-        ),
-        padding: const EdgeInsets.only(
-          left: dimens.paddingCardX,
-          right: dimens.paddingCardX,
-          top: 30,
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Tu ubicación es:',
-              textAlign: TextAlign.left,
-              style: TextStyle(
-                color: colors.disabled,
-                fontSize: 14,
-                fontWeight: FontWeight.w300,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.5),
+                spreadRadius: 5,
+                blurRadius: 7,
+                offset: const Offset(0, 3),
               ),
-            ),
-            StreamInputText(
-              streamVal: _bloc.address,
-              onChange: (val) => _bloc.changeAddress(val),
-              onEnter: (String val) {
-                if (val.length >= 3) {
-                  LocationService.getPlace(val).then((value) {
-                    Position position = Position();
-                    position.oLat = value['lat'];
-                    position.oLng = value['lng'];
-                    _bloc.changeCurrentPosition(position);
-                    _moveCamera(position.oLat, position.oLng);
-                  });
-                }
-              },
-            ),
-            const SizedBox(height: 20),
-            _lstRoutePlans(lstRoutes),
-          ],
+            ],
+          ),
+          padding: const EdgeInsets.only(
+            left: dimens.paddingCardX,
+            right: dimens.paddingCardX,
+            top: 30,
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Tu ubicación es:',
+                textAlign: TextAlign.left,
+                style: TextStyle(
+                  color: colors.disabled,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w300,
+                ),
+              ),
+              StreamBuilder(
+                stream: _bloc.address,
+                builder: (BuildContext ctx, AsyncSnapshot<String> snapshot) {
+                  if (snapshot.hasError) {
+                    return Center(child: Text(snapshot.error.toString()));
+                  }
+                  String address = snapshot.data ?? '';
+                  return Center(
+                    child: Text(
+                      address,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ),
+      onTap: () => _modal(lstRoutes),
     );
   }
 
   Widget _lstRoutePlans(List<RoutePlan> lstRoutes) {
-    return Column(
+    return ListView(
       children: lstRoutes
           .map<Widget>(
             (RoutePlan route) => Container(
