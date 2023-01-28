@@ -4,7 +4,6 @@ import 'package:flutter/gestures.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:solo_verde/config/app.config.dart';
 
 import 'package:solo_verde/services/location.service.dart';
 
@@ -16,6 +15,8 @@ import 'package:solo_verde/widgets/loading_app.dart';
 import 'package:solo_verde/widgets/stream_input_text.dart';
 
 import 'package:solo_verde/helpers/functions.helper.dart';
+
+import 'package:solo_verde/config/app.config.dart';
 
 import 'package:solo_verde/values/colors.dart' as colors;
 import 'package:solo_verde/values/dimens.dart' as dimens;
@@ -116,19 +117,21 @@ class HomeScreenState extends State<HomeScreen> {
                 onEnter: (String val) {
                   if (val.length >= 3) {
                     LocationService.getPlace(val).then((value) {
-                      Position position = Position();
-                      position.oLat = value['lat'];
-                      position.oLng = value['lng'];
-                      _bloc.changeCurrentPosition(position);
-                      _moveCamera(position.oLat, position.oLng);
                       Navigator.pop(context);
-                    }).catchError((_) {
-                      Navigator.pop(context);
-                      Functions.showSnackBarApp(
-                        context,
-                        'warning',
-                        '¡No se puedo encontrar!',
-                      );
+                      if (value['error'] != null) {
+                        Functions.showSnackBarApp(
+                          context,
+                          'warning',
+                          value['error'],
+                        );
+                      } else {
+                        Position position = Position();
+                        position.oLat = value['lat'];
+                        position.oLng = value['lng'];
+                        _bloc.changeAddress(value['address']);
+                        _bloc.changeCurrentPosition(position);
+                        _moveCamera(position.oLat, position.oLng);
+                      }
                     });
                   }
                 },
@@ -310,53 +313,66 @@ class HomeScreenState extends State<HomeScreen> {
     return ListView(
       children: lstRoutes
           .map<Widget>(
-            (RoutePlan route) => Container(
-              padding: const EdgeInsets.only(
-                left: dimens.paddingCardX,
-                right: dimens.paddingCardX,
+            (RoutePlan route) => GestureDetector(
+              child: Container(
+                padding: const EdgeInsets.only(
+                  left: dimens.paddingCardX,
+                  right: dimens.paddingCardX,
+                ),
+                decoration: BoxDecoration(
+                  color: colors.background,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.location_city),
+                            Text(route.name),
+                          ],
+                        ),
+                      ],
+                    ),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Row(
+                          children: [
+                            Text('Inicio: ${route.startPoint}'),
+                            const Icon(Icons.house),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Text('Fin: ${route.endPoint}'),
+                            const Icon(Icons.house),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-              decoration: BoxDecoration(
-                color: colors.background,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.location_city),
-                          Text(route.name),
-                        ],
-                      ),
-                    ],
-                  ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Row(
-                        children: [
-                          Text('Inicio: ${route.startPoint}'),
-                          const Icon(Icons.house),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Text('Fin: ${route.endPoint}'),
-                          const Icon(Icons.house),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+              onDoubleTap: () {
+                if (route.coords.isNotEmpty) {
+                  Position position = Position();
+                  position.oLat = route.coords[0].oLat;
+                  position.oLng = route.coords[0].oLng;
+                  // _bloc.changeAddress(value['address']);
+                  _bloc.changeCurrentPosition(position);
+                  _moveCamera(position.oLat, position.oLng);
+                  Navigator.pop(context);
+                }
+              },
             ),
           )
           .toList(),

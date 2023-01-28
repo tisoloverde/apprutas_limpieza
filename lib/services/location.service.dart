@@ -55,7 +55,7 @@ class LocationService {
     url += '/place/findplacefromtext/json?input=$q&inputtype=textquery&key=$k';
     final response = await HttpRequest().getHttp(url);
     Map<String, dynamic> data = response.data;
-    if (data['candidates'].length > 0) {
+    if ((data['candidates'] as List).isNotEmpty) {
       String placeId = data['candidates'][0]['place_id'];
 
       String uri = AppConfig.googleMapsApi;
@@ -63,12 +63,14 @@ class LocationService {
       final resp = await HttpRequest().getHttp(uri);
       Map<String, dynamic> dt = resp.data;
       Map<String, dynamic> coord = dt['result'];
-      return {
-        "lat": coord['geometry']['location']['lat'],
-        "lng": coord['geometry']['location']['lng'],
-      };
+
+      double lat = coord['geometry']['location']['lat'];
+      double lng = coord['geometry']['location']['lng'];
+
+      String address = await getAddress(lat, lng);
+      return {"lat": lat, "lng": lng, "address": address};
     } else {
-      throw Error();
+      return {"error": '¡No se puedo encontrar!'};
     }
   }
 
