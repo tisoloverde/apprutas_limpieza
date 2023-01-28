@@ -367,7 +367,7 @@ class HomeScreenState extends State<HomeScreen> {
                   Position position = Position();
                   position.oLat = route.coords[0].oLat;
                   position.oLng = route.coords[0].oLng;
-                  // _bloc.changeAddress(value['address']);
+                  _bloc.changeAddress(route.startPoint);
                   _bloc.changeCurrentPosition(position);
                   _moveCamera(position.oLat, position.oLng);
                   Navigator.pop(context);
