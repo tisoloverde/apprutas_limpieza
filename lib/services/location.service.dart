@@ -68,7 +68,7 @@ class LocationService {
         "lng": coord['geometry']['location']['lng'],
       };
     } else {
-      return {};
+      throw Error();
     }
   }
 

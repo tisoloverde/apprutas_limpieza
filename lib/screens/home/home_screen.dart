@@ -122,6 +122,13 @@ class HomeScreenState extends State<HomeScreen> {
                       _bloc.changeCurrentPosition(position);
                       _moveCamera(position.oLat, position.oLng);
                       Navigator.pop(context);
+                    }).catchError((_) {
+                      Navigator.pop(context);
+                      Functions.showSnackBarApp(
+                        context,
+                        'warning',
+                        '¡No se puedo encontrar!',
+                      );
                     });
                   }
                 },
