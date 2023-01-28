@@ -75,7 +75,10 @@ class HomeBloc {
 
   Future<ListCommonsRes> listRoutes() async {
     privateIsLoading.value = true;
-    ListCommonsRes response = await repository.listRoutes();
+    String day = "LUNES";
+    String time = "2023-09-08T13:30:00.000z";
+
+    ListCommonsRes response = await repository.listRoutes(day, time);
     if (response.isDisconnected) {
       privateIsLoading.value = false;
       return response;

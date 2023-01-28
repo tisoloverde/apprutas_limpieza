@@ -7,11 +7,11 @@ import 'package:solo_verde/services/connection.service.dart';
 class CommonsRepository {
   CommonsService api = CommonsService();
 
-  Future<ListCommonsRes> listRoutes() async {
+  Future<ListCommonsRes> listRoutes(String day, String time) async {
     ListCommonsRes response = ListCommonsRes();
     bool hasConnection = await Connection.hasConnection();
     if (hasConnection) {
-      response = await api.listRoutes();
+      response = await api.listRoutes(day, time);
     } else {
       response.isDisconnected = true;
       response.warning = 'Te encuentras offline';

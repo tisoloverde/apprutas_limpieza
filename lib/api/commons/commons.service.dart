@@ -9,11 +9,12 @@ import 'package:solo_verde/helpers/http.helper.dart';
 class CommonsService {
   HttpRequest http = HttpRequest();
 
-  Future<ListCommonsRes> listRoutes() async {
+  Future<ListCommonsRes> listRoutes(String day, String time) async {
     ListCommonsRes response = ListCommonsRes();
     String url = endpoints.commons.routes;
+    Map<String, dynamic> data = {"day": day, "time": time};
 
-    await http.getHttp(url).then((res) {
+    await http.postEncodedHttp(url, data).then((res) {
       Map<String, dynamic> resData = {"data": res.data};
       response = ListCommonsRes.fromJson(resData);
     }).catchError((e) {
