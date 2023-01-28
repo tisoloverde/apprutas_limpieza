@@ -55,7 +55,7 @@ class HomeScreenState extends State<HomeScreen> {
       _bloc.changeCurrentPosition(Position.fromJson(value));
     });
     _timer = Timer.periodic(
-      Duration(seconds: AppConfig.periodic),
+      Duration(minutes: AppConfig.periodic),
       (Timer t) => _init(),
     );
   }
