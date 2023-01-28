@@ -231,6 +231,7 @@ class HomeScreenState extends State<HomeScreen> {
       initialCameraPosition: _getPosition(position.oLat, position.oLng),
       markers: {_getMarker(position.oLat, position.oLng)},
       polylines: lstRoutes,
+      myLocationEnabled: true,
       gestureRecognizers: {
         Factory<OneSequenceGestureRecognizer>(
           () => EagerGestureRecognizer(),
