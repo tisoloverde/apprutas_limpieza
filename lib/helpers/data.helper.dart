@@ -1,6 +1,12 @@
+import 'package:solo_verde/models/error.model.dart';
 import 'package:solo_verde/models/geo.model.dart';
 
 class Data {
+  static HttpError transformError(var data) {
+    HttpError res = HttpError.fromJson(data);
+    return res;
+  }
+
   static List<Position> transformListPosition(var data) {
     if (data == null) return [];
     List<Position> lst = (data as List)

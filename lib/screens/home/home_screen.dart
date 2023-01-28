@@ -14,6 +14,8 @@ import 'package:solo_verde/models/geo.model.dart';
 import 'package:solo_verde/widgets/loading_app.dart';
 import 'package:solo_verde/widgets/stream_input_text.dart';
 
+import 'package:solo_verde/helpers/functions.helper.dart';
+
 import 'package:solo_verde/values/colors.dart' as colors;
 import 'package:solo_verde/values/dimens.dart' as dimens;
 
@@ -41,7 +43,15 @@ class HomeScreenState extends State<HomeScreen> {
     if (!_isInit) return;
     setState(() => _isInit = false);
     _bloc = Provider.of<HomeBloc>(context);
-    _bloc.init();
+    _bloc.listRoutes().then((value) {
+      if (value.isDisconnected) {
+        Functions.showSnackBarApp(context, 'warning', value.warning ?? '');
+      } else if (value.error != null) {
+        Functions.showSnackBarApp(context, 'error', _bloc.getError());
+      } else {
+        _bloc.init();
+      }
+    });
   }
 
   @override
