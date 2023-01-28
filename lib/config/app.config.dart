@@ -15,4 +15,5 @@ class AppConfig {
   static String googleMapsKey = dotenv.env['GOOGLE_MAPS_KEY'] ?? '';
   static String googleMapsApi = dotenv.env['GOOGLE_MAPS_API'] ??
       'https://maps.googleapis.com/maps/api/place';
+  static int periodic = int.parse(dotenv.env['TIMER_PERIODIC_MINUTES'] ?? '30');
 }

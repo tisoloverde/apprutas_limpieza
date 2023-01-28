@@ -4,6 +4,7 @@ import 'package:flutter/gestures.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:solo_verde/config/app.config.dart';
 
 import 'package:solo_verde/services/location.service.dart';
 
@@ -33,6 +34,7 @@ class HomeScreenState extends State<HomeScreen> {
   bool _isInit = true;
   final double _height = 320;
   final double _zoom = 15; // 19.151926040649414;
+  Timer? _timer;
 
   HomeBloc _bloc = HomeBloc();
   final _controller = Completer<GoogleMapController>();
@@ -43,6 +45,22 @@ class HomeScreenState extends State<HomeScreen> {
     if (!_isInit) return;
     setState(() => _isInit = false);
     _bloc = Provider.of<HomeBloc>(context);
+    // _init();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    LocationService.currentLocation().then((value) {
+      _bloc.changeCurrentPosition(Position.fromJson(value));
+    });
+    _timer = Timer.periodic(
+      Duration(seconds: AppConfig.periodic),
+      (Timer t) => _init(),
+    );
+  }
+
+  void _init() {
     _bloc.listRoutes().then((value) {
       if (value.isDisconnected) {
         Functions.showSnackBarApp(context, 'warning', value.warning ?? '');
@@ -51,14 +69,6 @@ class HomeScreenState extends State<HomeScreen> {
       } else {
         _bloc.init();
       }
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    LocationService.currentLocation().then((value) {
-      _bloc.changeCurrentPosition(Position.fromJson(value));
     });
   }
 
@@ -76,6 +86,7 @@ class HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
+    _timer?.cancel();
     super.dispose();
   }
 
