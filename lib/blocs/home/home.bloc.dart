@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:intl/intl.dart';
 
 import 'package:solo_verde/api/commons/commons.repository.dart';
 
@@ -11,6 +12,7 @@ import 'package:solo_verde/models/response.model.dart';
 import 'package:solo_verde/services/location.service.dart';
 
 import 'package:solo_verde/config/app.config.dart';
+import 'package:solo_verde/config/constants.config.dart';
 
 import 'package:solo_verde/helpers/data.helper.dart';
 
@@ -75,8 +77,10 @@ class HomeBloc {
 
   Future<ListCommonsRes> listRoutes() async {
     privateIsLoading.value = true;
-    String day = "LUNES";
-    String time = "2023-09-08T13:30:00.000z";
+
+    DateTime now = DateTime.now();
+    String time = now.toString();
+    String day = AppConstants.days[DateFormat('EEEE').format(now)] ?? '';
 
     ListCommonsRes response = await repository.listRoutes(day, time);
     if (response.isDisconnected) {

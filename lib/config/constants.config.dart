@@ -14,4 +14,14 @@ class AppConstants {
       ],
     },
   ];
+
+  static Map<String, String> days = {
+    "Monday": "LUNES",
+    "Tuesday": "MARTES",
+    "Wednesday": "MIÉRCOLES",
+    "Thursday": "JUEVES",
+    "Friday": "VIERNES",
+    "Saturday": "SÁBADO",
+    "Sunday": "DOMINGO",
+  };
 }

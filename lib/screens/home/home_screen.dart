@@ -45,7 +45,7 @@ class HomeScreenState extends State<HomeScreen> {
     if (!_isInit) return;
     setState(() => _isInit = false);
     _bloc = Provider.of<HomeBloc>(context);
-    // _init();
+    _init();
   }
 
   @override
