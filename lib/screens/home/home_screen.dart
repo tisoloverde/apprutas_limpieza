@@ -35,7 +35,7 @@ class HomeScreenState extends State<HomeScreen> {
   bool _isInit = true;
   final double _height = 100;
   final double _heightModal = 320;
-  final double _zoom = 15; // 19.151926040649414;
+  final double _zoom = 17; // 19.151926040649414;
   Timer? _timer;
 
   HomeBloc _bloc = HomeBloc();
@@ -316,6 +316,7 @@ class HomeScreenState extends State<HomeScreen> {
           .map<Widget>(
             (RoutePlan route) => GestureDetector(
               child: Container(
+                margin: const EdgeInsets.only(top: 5, bottom: 5),
                 padding: const EdgeInsets.only(
                   left: dimens.paddingCardX,
                   right: dimens.paddingCardX,
