@@ -14,6 +14,7 @@ import 'package:solo_verde/services/location.service.dart';
 import 'package:solo_verde/config/app.config.dart';
 import 'package:solo_verde/config/constants.config.dart';
 
+import 'package:solo_verde/helpers/functions.helper.dart';
 import 'package:solo_verde/helpers/data.helper.dart';
 
 class HomeBloc {
@@ -79,7 +80,7 @@ class HomeBloc {
     privateIsLoading.value = true;
 
     DateTime now = DateTime.now();
-    String time = now.toString();
+    String time = Functions.onlyTime(now);
     String day = AppConstants.days[DateFormat('EEEE').format(now)] ?? '';
 
     ListCommonsRes response = await repository.listRoutes(day, time);

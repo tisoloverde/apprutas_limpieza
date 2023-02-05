@@ -69,4 +69,13 @@ class Functions {
     );
     ScaffoldMessenger.of(context).showSnackBar(snackbar);
   }
+
+  static String onlyTime(DateTime dt) {
+    String time = dt.toString();
+    List<String> aux = time.split(" ");
+    if (aux.length < 2) return "";
+    List<String> aux2 = aux[1].split(".");
+    if (aux2.length < 2) return "";
+    return aux2[0];
+  }
 }
