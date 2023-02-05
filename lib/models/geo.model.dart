@@ -19,6 +19,7 @@ class RoutePlan {
   String name = '';
   String startPoint = '';
   String endPoint = '';
+  String color = '';
   List<Position> coords = [];
 
   RoutePlan();
@@ -27,5 +28,6 @@ class RoutePlan {
       : name = json['name'],
         startPoint = json['startPoint'],
         endPoint = json['endPoint'],
+        color = json['color'],
         coords = Data.transformListPosition(json['coords']);
 }

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:solo_verde/extensions.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
@@ -55,7 +55,7 @@ class HomeBloc {
       for (var coord in route.coords) {
         Polyline polyline = await LocationService.getPolyline(
           "${route.name}_$id",
-          Colors.red,
+          route.color.toColor(),
           coord.oLat,
           coord.oLng,
           coord.fLat,
