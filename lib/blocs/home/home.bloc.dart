@@ -61,6 +61,7 @@ class HomeBloc {
           coord.fLat,
           coord.fLng,
         );
+        id++;
         privatePolylineSet.value.add(polyline);
       }
     }

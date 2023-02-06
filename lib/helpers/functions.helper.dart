@@ -78,4 +78,12 @@ class Functions {
     if (aux2.length < 2) return "";
     return aux2[0];
   }
+
+  static String cutLongText(String str, {int max = 18}) {
+    if (str.isEmpty) return str;
+    if (str.length < max) return str;
+    String res = str.substring(0, max);
+    if (str[str.length - 1] == ' ') res;
+    return '$res...';
+  }
 }

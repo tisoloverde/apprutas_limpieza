@@ -349,13 +349,13 @@ class HomeScreenState extends State<HomeScreen> {
                       children: [
                         Row(
                           children: [
-                            Text('Inicio: ${route.startPoint}'),
+                            Text('Inicio: ${Functions.cutLongText(route.startPoint, max: 14)}'),
                             const Icon(Icons.house),
                           ],
                         ),
                         Row(
                           children: [
-                            Text('Fin: ${route.endPoint}'),
+                            Text('Fin: ${Functions.cutLongText(route.endPoint, max: 14)}'),
                             const Icon(Icons.house),
                           ],
                         ),
