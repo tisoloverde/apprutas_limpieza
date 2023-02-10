@@ -205,17 +205,35 @@ class HomeScreenState extends State<HomeScreen> {
                   return const Center(child: CircularProgressIndicator());
                 }
                 Position position = snp.data ?? _bloc.defaultPosition();
-                return SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height - _height,
-                        child: _map(polylines, position),
+                return StreamBuilder(
+                  stream: _bloc.setMarker,
+                  builder: (BuildContext cc, AsyncSnapshot<Set<Marker>> sn) {
+                    if (sn.hasError) {
+                      return Center(child: Text(sn.error.toString()));
+                    }
+                    if (!sn.hasData) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    Marker currMarker = _getMarker(
+                      position.oLat,
+                      position.oLng,
+                    );
+                    Set<Marker> markers = sn.data ?? {};
+                    markers.add(currMarker);
+                    return SingleChildScrollView(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SizedBox(
+                            height:
+                                MediaQuery.of(context).size.height - _height,
+                            child: _map(markers, polylines, position),
+                          ),
+                          _bottom(routes),
+                        ],
                       ),
-                      _bottom(routes),
-                    ],
-                  ),
+                    );
+                  },
                 );
               },
             );
@@ -225,11 +243,12 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _map(Set<Polyline> lstRoutes, Position position) {
+  Widget _map(
+      Set<Marker> lstMarkers, Set<Polyline> lstRoutes, Position position) {
     return GoogleMap(
       mapType: MapType.normal,
       initialCameraPosition: _getPosition(position.oLat, position.oLng),
-      markers: {_getMarker(position.oLat, position.oLng)},
+      markers: lstMarkers,
       polylines: lstRoutes,
       myLocationEnabled: true,
       gestureRecognizers: {
@@ -349,13 +368,15 @@ class HomeScreenState extends State<HomeScreen> {
                       children: [
                         Row(
                           children: [
-                            Text('Inicio: ${Functions.cutLongText(route.startPoint, max: 14)}'),
+                            Text(
+                                'Inicio: ${Functions.cutLongText(route.startPoint, max: 14)}'),
                             const Icon(Icons.house),
                           ],
                         ),
                         Row(
                           children: [
-                            Text('Fin: ${Functions.cutLongText(route.endPoint, max: 14)}'),
+                            Text(
+                                'Fin: ${Functions.cutLongText(route.endPoint, max: 14)}'),
                             const Icon(Icons.house),
                           ],
                         ),

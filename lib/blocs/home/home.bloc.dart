@@ -1,7 +1,8 @@
-import 'package:solo_verde/extensions.dart';
+import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:solo_verde/extensions.dart';
 
 import 'package:solo_verde/api/commons/commons.repository.dart';
 
@@ -24,6 +25,7 @@ class HomeBloc {
   final privateCurrentPosition = BehaviorSubject<Position>();
   final privateRouteList = BehaviorSubject<List<RoutePlan>>.seeded([]);
   final privatePolylineSet = BehaviorSubject<Set<Polyline>>.seeded({});
+  final privateMarkerSet = BehaviorSubject<Set<Marker>>.seeded({});
   final privateAddress = BehaviorSubject<String>.seeded("");
   final privateErrorMessage = BehaviorSubject<String>.seeded("");
 
@@ -32,12 +34,14 @@ class HomeBloc {
       privateCurrentPosition.sink.add;
   Function(List<RoutePlan>) get changeRouteList => privateRouteList.sink.add;
   Function(Set<Polyline>) get changePolylineSet => privatePolylineSet.sink.add;
+  Function(Set<Marker>) get changeMarkerSet => privateMarkerSet.sink.add;
   Function(String) get changeAddress => privateAddress.sink.add;
 
   Stream<bool> get isLoading => privateIsLoading.stream;
   Stream<Position> get currentPosition => privateCurrentPosition.stream;
   Stream<List<RoutePlan>> get lstRoutes => privateRouteList.stream;
   Stream<Set<Polyline>> get setPolyline => privatePolylineSet.stream;
+  Stream<Set<Marker>> get setMarker => privateMarkerSet.stream;
   Stream<String> get address => privateAddress.stream;
   Stream<String> get error => privateErrorMessage.stream;
 
@@ -48,9 +52,37 @@ class HomeBloc {
     );
     privateAddress.value = address;
 
+    BitmapDescriptor pinHome = await BitmapDescriptor.fromAssetImage(
+      const ImageConfiguration(devicePixelRatio: 1, size: Size(1, 1)),
+      'assets/icons/home_location.png',
+    );
+    BitmapDescriptor pinTarget = await BitmapDescriptor.fromAssetImage(
+      const ImageConfiguration(devicePixelRatio: 1, size: Size(1, 1)),
+      'assets/icons/target_location.png',
+    );
+
     // privateRouteList.value = Data.transformListRoutePlan(AppConstants.routes);
     privatePolylineSet.value = {};
+    privateMarkerSet.value = {};
     for (var route in privateRouteList.value) {
+      var pos0 = route.coords[0];
+      Marker marker0 = Marker(
+        markerId: MarkerId("${route.name}_start"),
+        position: LatLng(pos0.oLat, pos0.oLng),
+        /*infoWindow: const InfoWindow(title: 'HOTEL', snippet: '5 Star Hotel'),*/
+        icon: pinHome,
+      );
+      privateMarkerSet.value.add(marker0);
+
+      var posf = route.coords[route.coords.length - 1];
+      Marker markerf = Marker(
+        markerId: MarkerId("${route.name}_finish"),
+        position: LatLng(posf.fLat, posf.fLng),
+        /*infoWindow: const InfoWindow(title: 'HOTEL', snippet: '5 Star Hotel'),*/
+        icon: pinTarget,
+      );
+      privateMarkerSet.value.add(markerf);
+
       int id = 0;
       for (var coord in route.coords) {
         Polyline polyline = await LocationService.getPolyline(
@@ -65,6 +97,7 @@ class HomeBloc {
         privatePolylineSet.value.add(polyline);
       }
     }
+    privateMarkerSet.value = {...privateMarkerSet.value};
     privatePolylineSet.value = {...privatePolylineSet.value};
   }
 
