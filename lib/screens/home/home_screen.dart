@@ -63,15 +63,11 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   void _init() {
-    /*_bloc.listRoutes().then((value) {
-      if (value.isDisconnected) {
-        Functions.showSnackBarApp(context, 'warning', value.warning ?? '');
-      } else if (value.error != null) {
-        Functions.showSnackBarApp(context, 'error', _bloc.getError());
-      } else {
-        _bloc.init();
-      }
-    });*/
+    double lat = AppConfig.latDefault;
+    double lng = AppConfig.lngDefault;
+    LocationService.getAddress(lat, lng).then((value) {
+      _load(lat, lng, value[0]);
+    });
   }
 
   Future<void> _moveCamera(double lat, double lng) async {
@@ -84,6 +80,18 @@ class HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
+  }
+
+  void _load(double lat, double lng, String address) {
+    Position position = Position();
+    position.oLat = lat;
+    position.oLng = lng;
+    _bloc.getAddressAndComuna(position.oLat, position.oLng).then((_) {
+      _bloc.changeAddress(address);
+      _bloc.changeCurrentPosition(position);
+      _moveCamera(position.oLat, position.oLng);
+      _bloc.changeIsLoading(false);
+    });
   }
 
   void _modal(List<RoutePlan> lstRoutes) {
@@ -126,17 +134,7 @@ class HomeScreenState extends State<HomeScreen> {
                           value['error'],
                         );
                       } else {
-                        Position position = Position();
-                        position.oLat = value['lat'];
-                        position.oLng = value['lng'];
-                        _bloc
-                            .getAddressAndComuna(position.oLat, position.oLng)
-                            .then((_) {
-                          _bloc.changeAddress(value['address']);
-                          _bloc.changeCurrentPosition(position);
-                          _moveCamera(position.oLat, position.oLng);
-                          _bloc.changeIsLoading(false);
-                        });
+                        _load(value['lat'], value['lng'], value['address']);
                       }
                     });
                   }
