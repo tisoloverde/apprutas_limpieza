@@ -9,10 +9,14 @@ import 'package:solo_verde/helpers/http.helper.dart';
 class CommonsService {
   HttpRequest http = HttpRequest();
 
-  Future<ListCommonsRes> listRoutes(String day, String time) async {
+  Future<ListCommonsRes> listRoutes(
+    String comuna,
+    String day,
+    String time,
+  ) async {
     ListCommonsRes response = ListCommonsRes();
     String url = endpoints.commons.routes;
-    Map<String, dynamic> data = {"day": day, "time": time};
+    Map<String, dynamic> data = {"comuna": comuna, "day": day, "time": time};
 
     await http.postEncodedHttp(url, data).then((res) {
       Map<String, dynamic> resData = {"data": res.data};

@@ -17,7 +17,7 @@ class Loading extends StatelessWidget {
       Widget layOutProgressIndicator;
       layOutProgressIndicator = const Center(
         child: CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation<Color>(colors.secondary),
+          valueColor: AlwaysStoppedAnimation<Color>(colors.primary),
         ),
       );
       final modal = [

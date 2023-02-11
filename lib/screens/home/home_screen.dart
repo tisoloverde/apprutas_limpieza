@@ -35,7 +35,7 @@ class HomeScreenState extends State<HomeScreen> {
   bool _isInit = true;
   final double _height = 100;
   final double _heightModal = 320;
-  final double _zoom = 17; // 19.151926040649414;
+  final double _zoom = 15; // 19.151926040649414;
   Timer? _timer;
 
   HomeBloc _bloc = HomeBloc();
@@ -63,7 +63,7 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   void _init() {
-    _bloc.listRoutes().then((value) {
+    /*_bloc.listRoutes().then((value) {
       if (value.isDisconnected) {
         Functions.showSnackBarApp(context, 'warning', value.warning ?? '');
       } else if (value.error != null) {
@@ -71,7 +71,7 @@ class HomeScreenState extends State<HomeScreen> {
       } else {
         _bloc.init();
       }
-    });
+    });*/
   }
 
   Future<void> _moveCamera(double lat, double lng) async {
@@ -116,8 +116,9 @@ class HomeScreenState extends State<HomeScreen> {
                 onChange: (val) => _bloc.changeAddress(val),
                 onEnter: (String val) {
                   if (val.length >= 3) {
+                    _bloc.changeIsLoading(true);
+                    Navigator.pop(context);
                     LocationService.getPlace(val).then((value) {
-                      Navigator.pop(context);
                       if (value['error'] != null) {
                         Functions.showSnackBarApp(
                           context,
@@ -128,9 +129,14 @@ class HomeScreenState extends State<HomeScreen> {
                         Position position = Position();
                         position.oLat = value['lat'];
                         position.oLng = value['lng'];
-                        _bloc.changeAddress(value['address']);
-                        _bloc.changeCurrentPosition(position);
-                        _moveCamera(position.oLat, position.oLng);
+                        _bloc
+                            .getAddressAndComuna(position.oLat, position.oLng)
+                            .then((_) {
+                          _bloc.changeAddress(value['address']);
+                          _bloc.changeCurrentPosition(position);
+                          _moveCamera(position.oLat, position.oLng);
+                          _bloc.changeIsLoading(false);
+                        });
                       }
                     });
                   }
@@ -244,7 +250,10 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _map(
-      Set<Marker> lstMarkers, Set<Polyline> lstRoutes, Position position) {
+    Set<Marker> lstMarkers,
+    Set<Polyline> lstRoutes,
+    Position position,
+  ) {
     return GoogleMap(
       mapType: MapType.normal,
       initialCameraPosition: _getPosition(position.oLat, position.oLng),

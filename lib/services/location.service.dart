@@ -67,23 +67,32 @@ class LocationService {
       double lat = coord['geometry']['location']['lat'];
       double lng = coord['geometry']['location']['lng'];
 
-      String address = await getAddress(lat, lng);
-      return {"lat": lat, "lng": lng, "address": address};
+      List<String> address = await getAddress(lat, lng);
+      return {"lat": lat, "lng": lng, "address": address[0]};
     } else {
       return {"error": '¡No se puedo encontrar!'};
     }
   }
 
-  static Future<String> getAddress(double lat, double lng) async {
+  static Future<List<String>> getAddress(double lat, double lng) async {
     String url = AppConfig.googleMapsApi;
     String k = AppConfig.googleMapsKey;
-    url += '/geocode/json?latlng=$lat,$lng&key=$k';
+    String resultType = "result_type=administrative_area_level_3";
+    url += '/geocode/json?latlng=$lat,$lng&$resultType&key=$k';
     final response = await HttpRequest().getHttp(url);
     Map<String, dynamic> data = response.data;
+    String address = "Desconocido";
+    String comuna = "";
     if (data['results'].isNotEmpty) {
-      return data['results'][0]['formatted_address'];
+      address = data['results'][0]['formatted_address'];
+      for (var ac in data['results'][0]['address_components']) {
+        if ((ac['types'] as List).contains('administrative_area_level_3')) {
+          comuna = ac['short_name'];
+          break;
+        }
+      }
     }
-    return "Desconocido";
+    return [address, comuna];
   }
 
   static Future<Polyline> getPolyline(

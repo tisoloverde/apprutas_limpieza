@@ -45,12 +45,10 @@ class HomeBloc {
   Stream<String> get address => privateAddress.stream;
   Stream<String> get error => privateErrorMessage.stream;
 
-  void init() async {
-    String address = await LocationService.getAddress(
-      AppConfig.latDefault,
-      AppConfig.lngDefault,
-    );
-    privateAddress.value = address;
+  Future<void> getAddressAndComuna(double lat, double lng) async {
+    List<String> addresses = await LocationService.getAddress(lat, lng);
+    privateAddress.value = addresses[0];
+    await listRoutes(addresses[1]);
 
     BitmapDescriptor pinHome = await BitmapDescriptor.fromAssetImage(
       const ImageConfiguration(devicePixelRatio: 1, size: Size(1, 1)),
@@ -110,14 +108,12 @@ class HomeBloc {
 
   getError() => privateErrorMessage.value;
 
-  Future<ListCommonsRes> listRoutes() async {
-    privateIsLoading.value = true;
-
+  Future<ListCommonsRes> listRoutes(String comuna) async {
     DateTime now = DateTime.now();
     String time = Functions.onlyTime(now);
     String day = AppConstants.days[DateFormat('EEEE').format(now)] ?? '';
 
-    ListCommonsRes response = await repository.listRoutes(day, time);
+    ListCommonsRes response = await repository.listRoutes(comuna, day, time);
     if (response.isDisconnected) {
       privateIsLoading.value = false;
       return response;
@@ -128,13 +124,13 @@ class HomeBloc {
       return response;
     }
     if (response.error != null) {
+      privateIsLoading.value = false;
       HttpError error = Data.transformError(response.error);
       privateErrorMessage.value = error.errorDescription ?? error.error;
-    } else {
-      ApiRes apiRes = ApiRes.fromJson(response.data ?? {});
-      privateRouteList.value = Data.transformListRoutePlan(apiRes.aaData);
     }
-    privateIsLoading.value = false;
+
+    ApiRes apiRes = ApiRes.fromJson(response.data ?? {});
+    privateRouteList.value = Data.transformListRoutePlan(apiRes.aaData);
 
     return response;
   }
