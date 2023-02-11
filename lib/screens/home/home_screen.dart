@@ -394,7 +394,7 @@ class HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
               ),
-              onDoubleTap: () {
+              onTap: () {
                 if (route.coords.isNotEmpty) {
                   Position position = Position();
                   position.oLat = route.coords[0].oLat;

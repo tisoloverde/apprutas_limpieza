@@ -17,8 +17,12 @@ class Position {
 
 class RoutePlan {
   String name = '';
+  List<String> days = [];
+  String comuna = '';
   String startPoint = '';
   String endPoint = '';
+  String startTime = '';
+  String endTime = '';
   String color = '';
   List<Position> coords = [];
 
@@ -26,8 +30,12 @@ class RoutePlan {
 
   RoutePlan.fromJson(Map<String, dynamic> json)
       : name = json['name'],
+        days = json['days'],
+        comuna = json['comuna'],
         startPoint = json['startPoint'],
         endPoint = json['endPoint'],
+        startTime = json['startTime'],
+        endTime = json['endTime'],
         color = json['color'],
         coords = Data.transformListPosition(json['coords']);
 }
