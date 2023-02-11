@@ -16,7 +16,7 @@ import 'package:solo_verde/widgets/stream_input_text.dart';
 
 import 'package:solo_verde/helpers/functions.helper.dart';
 
-import 'package:solo_verde/config/app.config.dart';
+// import 'package:solo_verde/config/app.config.dart';
 
 import 'package:solo_verde/values/colors.dart' as colors;
 import 'package:solo_verde/values/dimens.dart' as dimens;
@@ -53,20 +53,23 @@ class HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    LocationService.currentLocation().then((value) {
+    /*LocationService.currentLocation().then((value) {
       _bloc.changeCurrentPosition(Position.fromJson(value));
-    });
-    _timer = Timer.periodic(
+      _init();
+    });*/
+    /*_timer = Timer.periodic(
       Duration(minutes: AppConfig.periodic),
       (Timer t) => _init(),
-    );
+    );*/
   }
 
   void _init() {
-    double lat = AppConfig.latDefault;
-    double lng = AppConfig.lngDefault;
-    LocationService.getAddress(lat, lng).then((value) {
-      _load(lat, lng, value[0]);
+    LocationService.currentLocation().then((value) {
+      Position pos = Position.fromJson(value);
+      _bloc.changeCurrentPosition(pos);
+      LocationService.getAddress(pos.oLat, pos.oLng).then((value) {
+        _load(pos.oLat, pos.oLng, value[0]);
+      });
     });
   }
 
