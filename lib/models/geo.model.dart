@@ -30,7 +30,7 @@ class RoutePlan {
 
   RoutePlan.fromJson(Map<String, dynamic> json)
       : name = json['name'],
-        days = json['days'],
+        days = Data.transformListDay(json['days']),
         comuna = json['comuna'],
         startPoint = json['startPoint'],
         endPoint = json['endPoint'],

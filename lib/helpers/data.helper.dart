@@ -15,6 +15,12 @@ class Data {
     return lst;
   }
 
+  static List<String> transformListDay(var data) {
+    if (data == null) return [];
+    List<String> lst = (data as List).map<String>((item) => item).toList();
+    return lst;
+  }
+
   static List<RoutePlan> transformListRoutePlan(var data) {
     if (data == null) return [];
     List<RoutePlan> lst = (data as List)
