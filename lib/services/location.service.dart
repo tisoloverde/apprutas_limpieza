@@ -16,7 +16,9 @@ class LocationService {
     if (!serviceEnabled) {
       return {
         "flag": false,
-        "error": 'Location services are disabled. Please enable the services',
+        // "error": 'Location services are disabled. Please enable the services',
+        "error":
+            "Los servicios de ubicación están deshabilitados. Por favor, habilite los servicios.",
       };
     }
     permission = await Geolocator.checkPermission();
@@ -25,15 +27,18 @@ class LocationService {
       if (permission == LocationPermission.denied) {
         return {
           "flag": false,
-          "error": 'Location permissions are denied',
+          // "error": 'Location permissions are denied',
+          "error": "Los permisos de ubicación están denegados.",
         };
       }
     }
     if (permission == LocationPermission.deniedForever) {
       return {
         "flag": false,
+        /*"error":
+            'Location permissions are permanently denied, we cannot request permissions.',*/
         "error":
-            'Location permissions are permanently denied, we cannot request permissions.',
+            "Los permisos de ubicación están permanentemente denegados, no podemos solicitar los persmisos.",
       };
     }
     return {"flag": true};

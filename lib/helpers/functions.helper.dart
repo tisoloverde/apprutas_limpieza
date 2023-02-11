@@ -86,4 +86,40 @@ class Functions {
     if (str[str.length - 1] == ' ') res;
     return '$res...';
   }
+
+  static void showModal(BuildContext context, Widget content) {
+    showGeneralDialog(
+      context: context,
+      barrierLabel: "Barrier",
+      barrierDismissible: false,
+      barrierColor: Colors.black.withOpacity(0.5),
+      transitionDuration: const Duration(milliseconds: 700),
+      pageBuilder: (_, __, ___) {
+        return Center(
+          child: Container(
+            height: 240,
+            margin: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: content, // SizedBox.expand(child: content),
+          ),
+        );
+      },
+      transitionBuilder: (_, anim, __, child) {
+        Tween<Offset> tween = anim.status == AnimationStatus.reverse
+            ? Tween(begin: const Offset(-1, 0), end: Offset.zero)
+            : Tween(begin: const Offset(1, 0), end: Offset.zero);
+        return SlideTransition(
+          position: tween.animate(anim),
+          child: FadeTransition(
+            opacity: anim,
+            child: child,
+          ),
+        );
+      },
+    );
+  }
 }
