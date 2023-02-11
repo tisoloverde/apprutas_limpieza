@@ -19,6 +19,7 @@ class RoutePlan {
   String name = '';
   List<String> days = [];
   String comuna = '';
+  String vehicle = '';
   String startPoint = '';
   String endPoint = '';
   String startTime = '';
@@ -32,6 +33,7 @@ class RoutePlan {
       : name = json['name'],
         days = Data.transformListDay(json['days']),
         comuna = json['comuna'],
+        vehicle = json['vehicle'],
         startPoint = json['startPoint'],
         endPoint = json['endPoint'],
         startTime = json['startTime'],

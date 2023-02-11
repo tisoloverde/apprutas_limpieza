@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
+import 'package:solo_verde/extensions.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import 'package:solo_verde/services/location.service.dart';
@@ -361,44 +362,52 @@ class HomeScreenState extends State<HomeScreen> {
                   right: dimens.paddingCardX,
                 ),
                 decoration: BoxDecoration(
-                  color: colors.background,
+                  color: route.color.toColor(), // colors.background,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Row(
+                child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.location_city),
-                            Text(route.name),
-                          ],
+                        Text("${route.vehicle} | ${route.name}"),
+                        Text(Functions.formatLabelDays(route.days)),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const Text(
+                          'Inicio',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          Functions.formatLabelTime(route.startTime),
                         ),
                       ],
                     ),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Row(
-                          children: [
-                            Text(
-                                'Inicio: ${Functions.cutLongText(route.startPoint, max: 14)}'),
-                            const Icon(Icons.house),
-                          ],
+                        const Text(
+                          'Fin',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                        Row(
-                          children: [
-                            Text(
-                                'Fin: ${Functions.cutLongText(route.endPoint, max: 14)}'),
-                            const Icon(Icons.house),
-                          ],
+                        Text(
+                          Functions.formatLabelTime(route.endTime),
                         ),
                       ],
                     ),

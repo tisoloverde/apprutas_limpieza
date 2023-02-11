@@ -122,4 +122,21 @@ class Functions {
       },
     );
   }
+
+  static String formatLabelDays(List<String> days) {
+    return days
+        .map<String>(
+          (String day) => day.substring(0, 3).toUpperCase(),
+        )
+        .toList()
+        .join(' / ');
+  }
+
+  static String formatLabelTime(String time) {
+    List<String> aux = time.split(":");
+    if (aux.length >= 3) {
+      return "${aux[0]}:${aux[1]}";
+    }
+    return time;
+  }
 }
