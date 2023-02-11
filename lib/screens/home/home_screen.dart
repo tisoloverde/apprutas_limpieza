@@ -180,6 +180,14 @@ class HomeScreenState extends State<HomeScreen> {
             );
           },
         ),
+        floatingActionButton: SizedBox(
+          height: 240,
+          child: FloatingActionButton(
+            backgroundColor: colors.primary,
+            child: const Icon(Icons.adjust, color: Colors.white),
+            onPressed: () => _init(),
+          ),
+        ),
       ),
     );
   }
@@ -258,6 +266,8 @@ class HomeScreenState extends State<HomeScreen> {
       markers: lstMarkers,
       polylines: lstRoutes,
       myLocationEnabled: true,
+      zoomControlsEnabled: false,
+      myLocationButtonEnabled: false,
       gestureRecognizers: {
         Factory<OneSequenceGestureRecognizer>(
           () => EagerGestureRecognizer(),
