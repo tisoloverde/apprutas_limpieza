@@ -364,6 +364,10 @@ class HomeScreenState extends State<HomeScreen> {
                 decoration: BoxDecoration(
                   color: route.color.toColor(), // colors.background,
                   borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: route.color.toColor(),
+                    width: 2,
+                  ),
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
