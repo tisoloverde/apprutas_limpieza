@@ -106,6 +106,7 @@ class HomeBloc {
     return position;
   }
 
+  getAddress() => privateAddress.value;
   getError() => privateErrorMessage.value;
 
   Future<ListCommonsRes> listRoutes(String comuna) async {

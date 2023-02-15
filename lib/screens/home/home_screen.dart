@@ -65,6 +65,7 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   void _init() {
+    _bloc.changeIsLoading(true);
     LocationService.currentLocation().then((value) {
       Position pos = Position.fromJson(value);
       _bloc.changeCurrentPosition(pos);
@@ -96,6 +97,19 @@ class HomeScreenState extends State<HomeScreen> {
       _moveCamera(position.oLat, position.oLng);
       _bloc.changeIsLoading(false);
     });
+  }
+
+  void _reload() {
+    _bloc.changeIsLoading(true);
+    LocationService.getPlace(_bloc.getAddress()).then((value) {
+      if (value['error'] != null) {
+        _bloc.changeIsLoading(false);
+        Functions.showSnackBarApp(context, 'warning', value['error']);
+      } else {
+        _load(value['lat'], value['lng'], value['address']);
+      }
+    });
+    // _init();
   }
 
   void _modal(List<RoutePlan> lstRoutes) {
@@ -184,13 +198,24 @@ class HomeScreenState extends State<HomeScreen> {
             );
           },
         ),
-        floatingActionButton: SizedBox(
-          height: 240,
-          child: FloatingActionButton(
-            backgroundColor: colors.primary,
-            child: const Icon(Icons.adjust, color: Colors.white),
-            onPressed: () => _init(),
-          ),
+        floatingActionButton: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            FloatingActionButton(
+              heroTag: null,
+              backgroundColor: colors.primary,
+              child: const Icon(Icons.adjust, color: Colors.white),
+              onPressed: () => _init(),
+            ),
+            const SizedBox(height: 10),
+            FloatingActionButton(
+              heroTag: null,
+              backgroundColor: colors.primary,
+              child: const Icon(Icons.sync, color: Colors.white),
+              onPressed: () => _reload(),
+            ),
+            const SizedBox(height: 90),
+          ],
         ),
       ),
     );
