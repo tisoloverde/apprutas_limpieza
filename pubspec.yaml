@@ -73,8 +73,10 @@ flutter:
   assets:
     - .env
     - assets/logos/logo.jpeg
-    - assets/icons/home_location.png
-    - assets/icons/target_location.png
+    - assets/icons/home_location_ios.png
+    - assets/icons/target_location_ios.png
+    - assets/icons/home_location_android.png
+    - assets/icons/target_location_android.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

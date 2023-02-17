@@ -3,6 +3,7 @@ import 'package:rxdart/rxdart.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:solo_verde/extensions.dart';
+import 'dart:io' show Platform;
 
 import 'package:solo_verde/api/commons/commons.repository.dart';
 
@@ -51,12 +52,16 @@ class HomeBloc {
     await listRoutes(addresses[1]);
 
     BitmapDescriptor pinHome = await BitmapDescriptor.fromAssetImage(
-      const ImageConfiguration(devicePixelRatio: 1, size: Size(1, 1)),
-      'assets/icons/home_location.png',
+      const ImageConfiguration(devicePixelRatio: 2),
+      Platform.isIOS
+          ? 'assets/icons/home_location_ios.png'
+          : 'assets/icons/home_location_android.png',
     );
     BitmapDescriptor pinTarget = await BitmapDescriptor.fromAssetImage(
-      const ImageConfiguration(devicePixelRatio: 1, size: Size(1, 1)),
-      'assets/icons/target_location.png',
+      const ImageConfiguration(devicePixelRatio: 2),
+      Platform.isIOS
+          ? 'assets/icons/target_location_ios.png'
+          : 'assets/icons/target_location_android.png',
     );
 
     // privateRouteList.value = Data.transformListRoutePlan(AppConstants.routes);
