@@ -11,6 +11,7 @@ class InputText extends StatelessWidget {
   final bool disabled;
   final TextEditingController? controller;
   final Function(String)? onEnter;
+  final Function()? onClear;
 
   const InputText({
     super.key,
@@ -21,6 +22,7 @@ class InputText extends StatelessWidget {
     this.disabled = false,
     this.controller,
     this.onEnter,
+    this.onClear,
   });
 
   @override
@@ -49,6 +51,10 @@ class InputText extends StatelessWidget {
           icon: icon,
           border: InputBorder.none,
           hintText: placeholder,
+          suffixIcon: InkWell(
+            onTap: onClear,
+            child: const Icon(Icons.clear, size: 18),
+          ),
         ),
         // textAlign: TextAlign.center,
         onChanged: onChange,

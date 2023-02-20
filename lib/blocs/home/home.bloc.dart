@@ -22,6 +22,7 @@ import 'package:solo_verde/helpers/data.helper.dart';
 class HomeBloc {
   CommonsRepository repository = CommonsRepository();
 
+  final privateIsInit = BehaviorSubject<bool>.seeded(true);
   final privateIsLoading = BehaviorSubject<bool>.seeded(true);
   final privateCurrentPosition = BehaviorSubject<Position>();
   final privateRouteList = BehaviorSubject<List<RoutePlan>>.seeded([]);
@@ -30,6 +31,7 @@ class HomeBloc {
   final privateAddress = BehaviorSubject<String>.seeded("");
   final privateErrorMessage = BehaviorSubject<String>.seeded("");
 
+  Function(bool) get changeIsInit => privateIsInit.sink.add;
   Function(bool) get changeIsLoading => privateIsLoading.sink.add;
   Function(Position) get changeCurrentPosition =>
       privateCurrentPosition.sink.add;
@@ -38,6 +40,7 @@ class HomeBloc {
   Function(Set<Marker>) get changeMarkerSet => privateMarkerSet.sink.add;
   Function(String) get changeAddress => privateAddress.sink.add;
 
+  Stream<bool> get isInit => privateIsInit.stream;
   Stream<bool> get isLoading => privateIsLoading.stream;
   Stream<Position> get currentPosition => privateCurrentPosition.stream;
   Stream<List<RoutePlan>> get lstRoutes => privateRouteList.stream;
@@ -142,6 +145,7 @@ class HomeBloc {
   }
 
   dispose() {
+    privateIsInit.close();
     privateIsLoading.close();
     privateCurrentPosition.close();
     privateRouteList.close();

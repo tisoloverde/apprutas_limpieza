@@ -112,6 +112,24 @@ class HomeScreenState extends State<HomeScreen> {
     // _init();
   }
 
+  void _fn(String val) {
+    if (val.length >= 3) {
+      _bloc.changeIsLoading(true);
+      Navigator.pop(context);
+      LocationService.getPlace(val).then((value) {
+        if (value['error'] != null) {
+          Functions.showSnackBarApp(
+            context,
+            'warning',
+            value['error'],
+          );
+        } else {
+          _load(value['lat'], value['lng'], value['address']);
+        }
+      });
+    }
+  }
+
   void _modal(List<RoutePlan> lstRoutes) {
     showModalBottomSheet<void>(
       context: context,
@@ -137,25 +155,18 @@ class HomeScreenState extends State<HomeScreen> {
             // mainAxisAlignment: MainAxisAlignment.center,
             // crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              StreamInputText(
-                streamVal: _bloc.address,
-                onChange: (val) => _bloc.changeAddress(val),
-                onEnter: (String val) {
-                  if (val.length >= 3) {
-                    _bloc.changeIsLoading(true);
-                    Navigator.pop(context);
-                    LocationService.getPlace(val).then((value) {
-                      if (value['error'] != null) {
-                        Functions.showSnackBarApp(
-                          context,
-                          'warning',
-                          value['error'],
-                        );
-                      } else {
-                        _load(value['lat'], value['lng'], value['address']);
-                      }
-                    });
-                  }
+              StreamBuilder(
+                stream: _bloc.isInit,
+                builder: (BuildContext ctx, AsyncSnapshot<bool> snpp) {
+                  bool isInit = snpp.data ?? true;
+                  return StreamInputText(
+                    streamVal: _bloc.address,
+                    onChange: (val) => _bloc.changeAddress(val),
+                    onEnter: (String val) => _fn(val),
+                    isInit: isInit,
+                    onInit: () => _bloc.changeIsInit(false),
+                    onClear: () => _bloc.changeAddress(''),
+                  );
                 },
               ),
               const SizedBox(height: 20),
@@ -371,7 +382,10 @@ class HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
-      onTap: () => _modal(lstRoutes),
+      onTap: () {
+        _bloc.changeIsInit(true);
+        _modal(lstRoutes);
+      },
     );
   }
 

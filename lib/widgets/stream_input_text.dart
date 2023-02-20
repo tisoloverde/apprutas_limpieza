@@ -3,15 +3,21 @@ import 'package:flutter/material.dart';
 import 'package:solo_verde/widgets/input_text.dart';
 
 class StreamInputText extends StatefulWidget {
+  final bool isInit;
   final Stream<dynamic> streamVal;
   final Function(dynamic) onChange;
   final Function(String)? onEnter;
+  final Function() onInit;
+  final Function() onClear;
 
   const StreamInputText({
     super.key,
+    required this.isInit,
     required this.streamVal,
     required this.onChange,
     this.onEnter,
+    required this.onInit,
+    required this.onClear,
   });
 
   @override
@@ -19,7 +25,17 @@ class StreamInputText extends StatefulWidget {
 }
 
 class StreamInputTextState extends State<StreamInputText> {
-  // final TextEditingController _controller = TextEditingController();
+  final TextEditingController _controller = TextEditingController();
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,11 +50,19 @@ class StreamInputTextState extends State<StreamInputText> {
           TextPosition(offset: _controller.text.length),
         );*/
         if (!snapshot.hasData) return const SizedBox();
+        if (widget.isInit) {
+          _controller.text = snapshot.data;
+          widget.onInit();
+        }
         return InputText(
-          // controller: _controller,
-          initialValue: snapshot.data ?? '',
+          controller: _controller,
+          // initialValue: snapshot.data,
           onChange: (String? val) => widget.onChange(val ?? ''),
           onEnter: widget.onEnter,
+          onClear: () {
+            _controller.text = '';
+            widget.onClear();
+          },
         );
       },
     );
