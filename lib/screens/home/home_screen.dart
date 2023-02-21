@@ -410,16 +410,10 @@ class HomeScreenState extends State<HomeScreen> {
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text("${route.vehicle} | ${route.name}"),
-                        Text(Functions.formatLabelDays(route.days)),
-                      ],
-                    ),
+                    Text("${route.vehicle} | ${route.name}"),
+                    Text(Functions.formatLabelDays(route.days)),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.center,
