@@ -6,12 +6,12 @@
     <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
-        android:label="solo_verde"
+        android:label="SoloVerde"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <meta-data
           android:name="com.google.android.geo.API_KEY"
-          android:value="AIzaSyBqf5FJuJ77EQUYeo6ig9dsg7nACT62rU0"/>
+          android:value="AIzaSyCbGyHMqezHT4enBPM3fhpb475bzULXT-k"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"
