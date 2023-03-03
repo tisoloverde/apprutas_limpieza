@@ -12,6 +12,7 @@ class InputText extends StatelessWidget {
   final TextEditingController? controller;
   final Function(String)? onEnter;
   final Function()? onClear;
+  final FocusNode? focusNode;
 
   const InputText({
     super.key,
@@ -23,6 +24,7 @@ class InputText extends StatelessWidget {
     this.controller,
     this.onEnter,
     this.onClear,
+    this.focusNode,
   });
 
   @override
@@ -43,6 +45,8 @@ class InputText extends StatelessWidget {
         right: dimens.paddingButton,
       ),
       child: TextFormField(
+        autofocus: true,
+        focusNode: focusNode,
         initialValue: initialValue,
         controller: controller,
         enabled: !disabled,

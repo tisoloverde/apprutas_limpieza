@@ -9,6 +9,7 @@ class StreamInputText extends StatefulWidget {
   final Function(String)? onEnter;
   final Function() onInit;
   final Function() onClear;
+  final FocusNode? focusNode;
 
   const StreamInputText({
     super.key,
@@ -18,6 +19,7 @@ class StreamInputText extends StatefulWidget {
     this.onEnter,
     required this.onInit,
     required this.onClear,
+    this.focusNode,
   });
 
   @override
@@ -55,6 +57,7 @@ class StreamInputTextState extends State<StreamInputText> {
           widget.onInit();
         }
         return InputText(
+          focusNode: widget.focusNode,
           controller: _controller,
           // initialValue: snapshot.data,
           onChange: (String? val) => widget.onChange(val ?? ''),

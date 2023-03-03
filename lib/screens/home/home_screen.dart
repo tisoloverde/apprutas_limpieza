@@ -38,6 +38,7 @@ class HomeScreenState extends State<HomeScreen> {
   final double _heightModal = 320;
   final double _zoom = 15; // 19.151926040649414;
   Timer? _timer;
+  late FocusNode _focusNode;
 
   HomeBloc _bloc = HomeBloc();
   final _controller = Completer<GoogleMapController>();
@@ -54,6 +55,7 @@ class HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    _focusNode = FocusNode();
     /*LocationService.currentLocation().then((value) {
       _bloc.changeCurrentPosition(Position.fromJson(value));
       _init();
@@ -160,12 +162,16 @@ class HomeScreenState extends State<HomeScreen> {
                 builder: (BuildContext ctx, AsyncSnapshot<bool> snpp) {
                   bool isInit = snpp.data ?? true;
                   return StreamInputText(
+                    focusNode: _focusNode,
                     streamVal: _bloc.address,
                     onChange: (val) => _bloc.changeAddress(val),
                     onEnter: (String val) => _fn(val),
                     isInit: isInit,
                     onInit: () => _bloc.changeIsInit(false),
-                    onClear: () => _bloc.changeAddress(''),
+                    onClear: () {
+                      _focusNode.requestFocus();
+                      _bloc.changeAddress('');
+                    },
                   );
                 },
               ),
