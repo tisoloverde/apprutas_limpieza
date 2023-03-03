@@ -45,7 +45,7 @@ class InputText extends StatelessWidget {
         right: dimens.paddingButton,
       ),
       child: TextFormField(
-        autofocus: true,
+        // autofocus: true,
         focusNode: focusNode,
         initialValue: initialValue,
         controller: controller,
