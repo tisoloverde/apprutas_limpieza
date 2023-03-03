@@ -390,81 +390,97 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _lstRoutePlans(List<RoutePlan> lstRoutes) {
-    return ListView(
+    /*return ListView(
       children: lstRoutes
           .map<Widget>(
-            (RoutePlan route) => GestureDetector(
-              child: Container(
-                margin: const EdgeInsets.only(top: 5, bottom: 5),
-                padding: const EdgeInsets.only(
-                  left: dimens.paddingCardX,
-                  right: dimens.paddingCardX,
-                ),
-                decoration: BoxDecoration(
-                  color: route.color.toColor(), // colors.background,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: route.color.toColor(),
-                    width: 2,
-                  ),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("${route.vehicle} | ${route.name}"),
-                    Text(Functions.formatLabelDays(route.days)),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        const Text(
-                          'Inicio',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          Functions.formatLabelTime(route.startTime),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        const Text(
-                          'Fin',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          Functions.formatLabelTime(route.endTime),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              onTap: () {
-                if (route.coords.isNotEmpty) {
-                  Position position = Position();
-                  position.oLat = route.coords[0].oLat;
-                  position.oLng = route.coords[0].oLng;
-                  _bloc.changeAddress(route.comuna); // route.startPoint);
-                  // _bloc.changeCurrentPosition(position);
-                  _moveCamera(position.oLat, position.oLng);
-                  Navigator.pop(context);
-                }
-              },
-            ),
+            (RoutePlan route) => _routePlan(route),
           )
           .toList(),
+    );*/
+    return ListView(
+      children: lstRoutes
+          .asMap()
+          .map(
+            (i, route) => MapEntry(
+              i,
+              _routePlan(route, mb: i < (lstRoutes.length - 1) ? 5 : 40),
+            ),
+          )
+          .values
+          .toList(),
+    );
+  }
+
+  Widget _routePlan(RoutePlan route, {double mb = 5}) {
+    return GestureDetector(
+      child: Container(
+        margin: EdgeInsets.only(top: 5, bottom: mb),
+        padding: const EdgeInsets.only(
+          left: dimens.paddingCardX,
+          right: dimens.paddingCardX,
+        ),
+        decoration: BoxDecoration(
+          color: route.color.toColor(), // colors.background,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: route.color.toColor(),
+            width: 2,
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("${route.vehicle} | ${route.name}"),
+            Text(Functions.formatLabelDays(route.days)),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Text(
+                  'Inicio',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  Functions.formatLabelTime(route.startTime),
+                ),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Text(
+                  'Fin',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  Functions.formatLabelTime(route.endTime),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+      onTap: () {
+        if (route.coords.isNotEmpty) {
+          Position position = Position();
+          position.oLat = route.coords[0].oLat;
+          position.oLng = route.coords[0].oLng;
+          _bloc.changeAddress(route.comuna); // route.startPoint);
+          // _bloc.changeCurrentPosition(position);
+          _moveCamera(position.oLat, position.oLng);
+          Navigator.pop(context);
+        }
+      },
     );
   }
 
