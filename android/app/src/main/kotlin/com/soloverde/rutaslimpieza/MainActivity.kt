@@ -1,4 +1,4 @@
-package com.example.solo_verde
+package com.soloverde.rutaslimpieza
 
 import io.flutter.embedding.android.FlutterActivity
 
