@@ -16,7 +16,7 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       child: MaterialApp(
-        title: "Equip",
+        title: "Recolección de Residuos",
         theme: apptheme.theme,
         routes: Routes.paths,
         initialRoute: Routes.initialPath,
