@@ -49,7 +49,6 @@ class HomeScreenState extends State<HomeScreen> {
     if (!_isInit) return;
     setState(() => _isInit = false);
     _bloc = Provider.of<HomeBloc>(context);
-    _bloc.changeIsLoading(true);
     _init();
   }
 
@@ -57,28 +56,24 @@ class HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _focusNode = FocusNode();
-  }
-
-  void _init() async {
-    LocationService.currentLocation().then((value) {
-      if (value == null) {
-        /*_bloc.changeAddress('');
-        _bloc.changeCurrentPosition(null);*/
-        _bloc.changeIsLoading(false);
-        return;
-      }
-      double oLat = value['oLat'] ?? 0;
-      double oLng = value['oLng'] ?? 0;
-      LocationService.getAddress(oLat, oLng).then((val) {
-        _load(oLat, oLng, val[0]);
-      });
-    });
-  }
-
-  void _reinit() {
-    _bloc.changeIsLoading(true);
-    validate().then((_) {
+    /*LocationService.currentLocation().then((value) {
+      _bloc.changeCurrentPosition(Position.fromJson(value));
       _init();
+    });*/
+    /*_timer = Timer.periodic(
+      Duration(minutes: AppConfig.periodic),
+      (Timer t) => _init(),
+    );*/
+  }
+
+  void _init() {
+    _bloc.changeIsLoading(true);
+    LocationService.currentLocation().then((value) {
+      Position pos = Position.fromJson(value);
+      _bloc.changeCurrentPosition(pos);
+      LocationService.getAddress(pos.oLat, pos.oLng).then((value) {
+        _load(pos.oLat, pos.oLng, value[0]);
+      });
     });
   }
 
@@ -95,10 +90,13 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   void _load(double lat, double lng, String address) {
-    _bloc.getAddressAndComuna(lat, lng).then((_) {
+    Position position = Position();
+    position.oLat = lat;
+    position.oLng = lng;
+    _bloc.getAddressAndComuna(position.oLat, position.oLng).then((_) {
       _bloc.changeAddress(address);
-      _bloc.changeCurrentPosition(Position.fromPair(lat, lng));
-      _moveCamera(lat, lng);
+      _bloc.changeCurrentPosition(position);
+      _moveCamera(position.oLat, position.oLng);
       _bloc.changeIsLoading(false);
     });
   }
@@ -109,24 +107,11 @@ class HomeScreenState extends State<HomeScreen> {
       if (value['error'] != null) {
         _bloc.changeIsLoading(false);
         Functions.showSnackBarApp(context, 'warning', value['error']);
-        return;
+      } else {
+        _load(value['lat'], value['lng'], value['address']);
       }
-      _load(value['lat'], value['lng'], value['address']);
     });
-  }
-
-  Future<void> validate() async {
-    await LocationService.handleLocationPermission()
-        .then((Map<String, dynamic> val) {
-      if (val['flag']) return;
-      Functions.showSnackBarApp(context, 'warning', val['error']);
-    }).catchError((err) {
-      Functions.showSnackBarApp(
-        context,
-        'warning',
-        '¡No se pudo obtener la ubicación actual!',
-      );
-    });
+    // _init();
   }
 
   void _fn(String val) {
@@ -135,15 +120,14 @@ class HomeScreenState extends State<HomeScreen> {
       Navigator.pop(context);
       LocationService.getPlace(val).then((value) {
         if (value['error'] != null) {
-          _bloc.changeIsLoading(false);
           Functions.showSnackBarApp(
             context,
             'warning',
             value['error'],
           );
-          return;
+        } else {
+          _load(value['lat'], value['lng'], value['address']);
         }
-        _load(value['lat'], value['lng'], value['address']);
       });
     }
   }
@@ -238,7 +222,7 @@ class HomeScreenState extends State<HomeScreen> {
               heroTag: null,
               backgroundColor: colors.primary,
               child: const Icon(Icons.adjust, color: Colors.white),
-              onPressed: () => _reinit(),
+              onPressed: () => _init(),
             ),
             const SizedBox(height: 10),
             FloatingActionButton(
@@ -271,25 +255,29 @@ class HomeScreenState extends State<HomeScreen> {
             Set<Polyline> polylines = snapshot.data ?? {};
             return StreamBuilder(
               stream: _bloc.currentPosition,
-              builder: (BuildContext ct, AsyncSnapshot<Position?> snp) {
+              builder: (BuildContext ct, AsyncSnapshot<Position> snp) {
                 if (snp.hasError) {
                   return Center(child: Text(snp.error.toString()));
                 }
-                Position? position = snp.data;
+                if (!snp.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                Position position = snp.data ?? _bloc.defaultPosition();
                 return StreamBuilder(
                   stream: _bloc.setMarker,
                   builder: (BuildContext cc, AsyncSnapshot<Set<Marker>> sn) {
                     if (sn.hasError) {
                       return Center(child: Text(sn.error.toString()));
                     }
-                    Set<Marker> markers = sn.data ?? {};
-                    if (position != null) {
-                      Marker currMarker = _getMarker(
-                        position.oLat,
-                        position.oLng,
-                      );
-                      markers.add(currMarker);
+                    if (!sn.hasData) {
+                      return const Center(child: CircularProgressIndicator());
                     }
+                    Marker currMarker = _getMarker(
+                      position.oLat,
+                      position.oLng,
+                    );
+                    Set<Marker> markers = sn.data ?? {};
+                    markers.add(currMarker);
                     return SingleChildScrollView(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -316,11 +304,11 @@ class HomeScreenState extends State<HomeScreen> {
   Widget _map(
     Set<Marker> lstMarkers,
     Set<Polyline> lstRoutes,
-    Position? position,
+    Position position,
   ) {
     return GoogleMap(
       mapType: MapType.normal,
-      initialCameraPosition: _getPosition(position),
+      initialCameraPosition: _getPosition(position.oLat, position.oLng),
       markers: lstMarkers,
       polylines: lstRoutes,
       myLocationEnabled: true,
@@ -408,6 +396,13 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _lstRoutePlans(List<RoutePlan> lstRoutes) {
+    /*return ListView(
+      children: lstRoutes
+          .map<Widget>(
+            (RoutePlan route) => _routePlan(route),
+          )
+          .toList(),
+    );*/
     return ListView(
       children: lstRoutes
           .asMap()
@@ -495,11 +490,10 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  CameraPosition _getPosition(Position? position) {
-    Position pos = position ?? _bloc.defaultPosition();
+  CameraPosition _getPosition(double lat, double lng) {
     final CameraPosition kGooglePlex = CameraPosition(
       // bearing: 192.8334901395799,
-      target: LatLng(pos.oLat, pos.oLng),
+      target: LatLng(lat, lng),
       // tilt: 59.440717697143555,
       zoom: _zoom,
     );

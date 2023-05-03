@@ -24,7 +24,7 @@ class HomeBloc {
 
   final privateIsInit = BehaviorSubject<bool>.seeded(true);
   final privateIsLoading = BehaviorSubject<bool>.seeded(true);
-  final privateCurrentPosition = BehaviorSubject<Position>();
+  final privateCurrentPosition = BehaviorSubject<Position?>.seeded(null);
   final privateRouteList = BehaviorSubject<List<RoutePlan>>.seeded([]);
   final privatePolylineSet = BehaviorSubject<Set<Polyline>>.seeded({});
   final privateMarkerSet = BehaviorSubject<Set<Marker>>.seeded({});
@@ -33,7 +33,7 @@ class HomeBloc {
 
   Function(bool) get changeIsInit => privateIsInit.sink.add;
   Function(bool) get changeIsLoading => privateIsLoading.sink.add;
-  Function(Position) get changeCurrentPosition =>
+  Function(Position?) get changeCurrentPosition =>
       privateCurrentPosition.sink.add;
   Function(List<RoutePlan>) get changeRouteList => privateRouteList.sink.add;
   Function(Set<Polyline>) get changePolylineSet => privatePolylineSet.sink.add;
@@ -42,7 +42,7 @@ class HomeBloc {
 
   Stream<bool> get isInit => privateIsInit.stream;
   Stream<bool> get isLoading => privateIsLoading.stream;
-  Stream<Position> get currentPosition => privateCurrentPosition.stream;
+  Stream<Position?> get currentPosition => privateCurrentPosition.stream;
   Stream<List<RoutePlan>> get lstRoutes => privateRouteList.stream;
   Stream<Set<Polyline>> get setPolyline => privatePolylineSet.stream;
   Stream<Set<Marker>> get setMarker => privateMarkerSet.stream;

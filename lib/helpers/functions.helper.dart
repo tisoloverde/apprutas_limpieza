@@ -67,6 +67,7 @@ class Functions {
         },
       ),
     );
+
     ScaffoldMessenger.of(context).showSnackBar(snackbar);
   }
 

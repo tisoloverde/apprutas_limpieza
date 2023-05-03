@@ -22,29 +22,36 @@ class LocationService {
       };
     }
     permission = await Geolocator.checkPermission();
+
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
         return {
           "flag": false,
-          // "error": 'Location permissions are denied',
           "error": "Los permisos de ubicación están denegados.",
         };
       }
     }
+
     if (permission == LocationPermission.deniedForever) {
-      return {
-        "flag": false,
-        /*"error":
-            'Location permissions are permanently denied, we cannot request permissions.',*/
-        "error":
-            "Los permisos de ubicación están permanentemente denegados, no podemos solicitar los persmisos.",
-      };
+      // permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.deniedForever) {
+        return {
+          "flag": false,
+          "error":
+              "Los permisos de ubicación están permanentemente denegados, no podemos solicitar los permisos.",
+        };
+      }
     }
     return {"flag": true};
   }
 
-  static Future<Map<String, double>> currentLocation() async {
+  static Future<Map<String, double>?> currentLocation() async {
+    final permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied ||
+        permission == LocationPermission.deniedForever) {
+      return null;
+    }
     Position position = await Geolocator.getCurrentPosition(
       desiredAccuracy: LocationAccuracy.high,
     );

@@ -2,10 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Solo Verde</string>
+	<string>Recolección de Residuos</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -21,8 +23,14 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
+	<true/>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Para proporcionarle la mejor experiencia posible, necesitamos acceder a su ubicación, incluso cuando la aplicación no se esté utilizando. Por favor, permita el acceso a la ubicación para que podamos proporcionarle las rutas del recolector de basura cercanos a su ubicación.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Para proporcionarle la mejor experiencia posible, necesitamos acceder a su ubicación, mientras utiliza nuestra aplicación. Por favor, permita el acceso a la ubicación para que podamos proporcionarle las rutas del recolector de basura cercanos a su ubicación.</string>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
@@ -43,13 +51,5 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-	<key>CADisableMinimumFrameDurationOnPhone</key>
-	<true/>
-	<key>UIApplicationSupportsIndirectInputEvents</key>
-	<true/>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Esta aplicación necesita acceso a la ubicación cuando se abre.</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>Esta aplicación necesita acceso a la ubicación cuando está en segundo plano.</string>
 </dict>
 </plist>

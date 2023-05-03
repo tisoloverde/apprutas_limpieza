@@ -26,13 +26,13 @@ class SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     LocationService.handleLocationPermission().then((Map<String, dynamic> val) {
-      bool flag = val['flag'];
-      if (flag) {
-        _startTime();
-      } else {
+      /*bool flag = val['flag'];
+      if (flag) {*/
+      _startTime();
+      /*} else {
         Functions.showModal(context, _modal(val['error']));
-      }
-    });
+      }*/
+    }).catchError((err) {});
   }
 
   _startTime() async {

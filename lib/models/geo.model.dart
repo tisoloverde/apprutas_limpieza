@@ -13,6 +13,10 @@ class Position {
         oLng = json['oLng'] ?? 0.0,
         fLat = json['fLat'] ?? 0.0,
         fLng = json['fLng'] ?? 0.0;
+
+  Position.fromPair(double lat, double lng)
+      : oLat = lat,
+        oLng = lng;
 }
 
 class RoutePlan {
