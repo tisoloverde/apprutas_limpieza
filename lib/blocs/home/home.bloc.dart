@@ -103,7 +103,7 @@ class HomeBloc {
         privatePolylineSet.value.add(polyline);
       }
     }
-    privateMarkerSet.value = {...privateMarkerSet.value};
+    privateMarkerSet.value = {}; // {...privateMarkerSet.value};
     privatePolylineSet.value = {...privatePolylineSet.value};
   }
 
