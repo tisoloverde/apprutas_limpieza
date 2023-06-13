@@ -17,6 +17,8 @@ class Position {
   Position.fromPair(double lat, double lng)
       : oLat = lat,
         oLng = lng;
+
+  toCoordStr() => "$oLat,$oLng";
 }
 
 class RoutePlan {
@@ -29,6 +31,7 @@ class RoutePlan {
   String startTime = '';
   String endTime = '';
   String color = '';
+  bool isCloser = false;
   List<Position> coords = [];
 
   RoutePlan();
@@ -43,5 +46,6 @@ class RoutePlan {
         startTime = json['startTime'],
         endTime = json['endTime'],
         color = json['color'],
+        isCloser = json['isCloser'] ?? false,
         coords = Data.transformListPosition(json['coords']);
 }

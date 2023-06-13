@@ -11,11 +11,12 @@ class CommonsRepository {
     String comuna,
     String day,
     String time,
+    String? coordCurrent,
   ) async {
     ListCommonsRes response = ListCommonsRes();
     bool hasConnection = await Connection.hasConnection();
     if (hasConnection) {
-      response = await api.listRoutes(comuna, day, time);
+      response = await api.listRoutes(comuna, day, time, coordCurrent);
     } else {
       response.isDisconnected = true;
       response.warning = 'Te encuentras offline';

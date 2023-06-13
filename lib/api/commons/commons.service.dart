@@ -13,20 +13,27 @@ class CommonsService {
     String comuna,
     String day,
     String time,
+    String? coordCurrent,
   ) async {
     ListCommonsRes response = ListCommonsRes();
     String url = endpoints.commons.routes;
-    Map<String, dynamic> data = {"comuna": comuna, "day": day, "time": time};
+    Map<String, dynamic> data = {
+      "comuna": comuna,
+      "day": day,
+      "time": time,
+      "coordCurrent": coordCurrent,
+    };
 
     await http.postEncodedHttp(url, data).then((res) {
       Map<String, dynamic> resData = {"data": res.data};
       response = ListCommonsRes.fromJson(resData);
     }).catchError((e) {
-      if (e is DioError && e.type == DioErrorType.connectTimeout) {
-        response.isTimeout = true;
-        response.error = {"error": '¡No se puede conectar al servidor!'};
+      if (e is DioError) {
+        final err = http.handleError(e, '');
+        response.isTimeout = err.isTimeout;
+        response.error = {"error": err.msg};
       } else {
-        response.error = e.response.data;
+        response.error = {"error": "¡Ocurrió un error interno!"};
       }
     });
 

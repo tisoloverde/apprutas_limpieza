@@ -36,7 +36,7 @@ class HomeScreenState extends State<HomeScreen> {
   bool _isInit = true;
   final double _height = 100;
   final double _heightModal = 320;
-  final double _zoom = 16; // 19.151926040649414;
+  final double _zoom = 15; // 19.151926040649414;
   Timer? _timer;
   late FocusNode _focusNode;
 
@@ -94,63 +94,25 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _error() {
-    return Stack(
-      children: [
-        Positioned(
-          top: 0,
-          right: 0,
-          child: GestureDetector(
-            child: const Icon(Icons.close),
-            onTap: () => Navigator.of(context).pop(),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 10, right: 10),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Align(
-                alignment: Alignment.center,
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: Image.asset('assets/icons/target_location_ios.png'),
-                ),
-              ),
-              Text(
-                _bloc.getError(),
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  decoration: TextDecoration.none,
-                  fontSize: 16,
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
   void _load(double lat, double lng, String address) {
-    _bloc.changeAddress(address);
-    _bloc.changeCurrentPosition(Position.fromPair(lat, lng));
     _bloc.getAddressAndComuna(lat, lng).then((_) {
-      _moveCamera(lat, lng).then((_) {
-        _bloc.changeIsLoading(false);
-        if (_bloc.getError() != '') Functions.showModal(context, _error());
-      });
+      _bloc.changeAddress(address);
+      _bloc.changeCurrentPosition(Position.fromPair(lat, lng));
+      _moveCamera(lat, lng);
+      _bloc.changeIsLoading(false);
     });
   }
 
   void _reload() {
     _bloc.changeIsLoading(true);
-    String address = _bloc.getAddress();
-    Position currentPosition = _bloc.getCurrentPosition();
-    _load(currentPosition.oLat, currentPosition.oLng, address);
+    LocationService.getPlace(_bloc.getAddress()).then((value) {
+      if (value['error'] != null) {
+        _bloc.changeIsLoading(false);
+        Functions.showSnackBarApp(context, 'warning', value['error']);
+        return;
+      }
+      _load(value['lat'], value['lng'], value['address']);
+    });
   }
 
   Future<void> validate() async {
@@ -314,25 +276,34 @@ class HomeScreenState extends State<HomeScreen> {
                   return Center(child: Text(snp.error.toString()));
                 }
                 Position? position = snp.data;
-                Set<Marker> markers = {};
-                if (position != null) {
-                  Marker currMarker = _getMarker(
-                    position.oLat,
-                    position.oLng,
-                  );
-                  markers.add(currMarker);
-                }
-                return SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height - _height,
-                        child: _map(markers, polylines, position),
+                return StreamBuilder(
+                  stream: _bloc.setMarker,
+                  builder: (BuildContext cc, AsyncSnapshot<Set<Marker>> sn) {
+                    if (sn.hasError) {
+                      return Center(child: Text(sn.error.toString()));
+                    }
+                    Set<Marker> markers = sn.data ?? {};
+                    if (position != null) {
+                      Marker currMarker = _getMarker(
+                        position.oLat,
+                        position.oLng,
+                      );
+                      markers.add(currMarker);
+                    }
+                    return SingleChildScrollView(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SizedBox(
+                            height:
+                                MediaQuery.of(context).size.height - _height,
+                            child: _map(markers, polylines, position),
+                          ),
+                          _bottom(routes),
+                        ],
                       ),
-                      _bottom(routes),
-                    ],
-                  ),
+                    );
+                  },
                 );
               },
             );
@@ -443,7 +414,7 @@ class HomeScreenState extends State<HomeScreen> {
           .map(
             (i, route) => MapEntry(
               i,
-              _routePlan(i, route, mb: i < (lstRoutes.length - 1) ? 5 : 40),
+              _routePlan(route, mb: i < (lstRoutes.length - 1) ? 5 : 40),
             ),
           )
           .values
@@ -451,7 +422,7 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _routePlan(int index, RoutePlan route, {double mb = 5}) {
+  Widget _routePlan(RoutePlan route, {double mb = 5}) {
     return GestureDetector(
       child: Container(
         margin: EdgeInsets.only(top: 5, bottom: mb),
@@ -502,27 +473,23 @@ class HomeScreenState extends State<HomeScreen> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                Text(Functions.formatLabelTime(route.endTime)),
+                Text(
+                  Functions.formatLabelTime(route.endTime),
+                ),
               ],
             ),
           ],
         ),
       ),
-      onTap: () async {
+      onTap: () {
         if (route.coords.isNotEmpty) {
+          Position position = Position();
+          position.oLat = route.coords[0].oLat;
+          position.oLng = route.coords[0].oLng;
+          _bloc.changeAddress(route.comuna); // route.startPoint);
+          // _bloc.changeCurrentPosition(position);
+          _moveCamera(position.oLat, position.oLng);
           Navigator.pop(context);
-          _bloc.changeIsLoading(true);
-          double lat = route.coords[0].oLat;
-          double lng = route.coords[0].oLng;
-          LocationService.getAddress(lat, lng).then((val) {
-            _moveCamera(lat, lng).then((_) {
-              String address = val[0];
-              _bloc.changeAddress(address);
-              _bloc.changeCurrentPosition(Position.fromPair(lat, lng));
-              _bloc.selectRouteToView(index);
-              _bloc.viewRoutes().then((_) => _bloc.changeIsLoading(false));
-            });
-          });
         }
       },
     );

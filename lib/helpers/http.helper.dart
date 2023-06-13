@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 
 import 'package:solo_verde/config/app.config.dart';
+import 'package:solo_verde/models/error.model.dart';
 
 class HttpRequest {
   late Dio dio;
@@ -26,5 +27,36 @@ class HttpRequest {
         Options(headers: {'content-type': 'application/x-www-form-urlencoded'});
     final response = await dio.post(url, data: encodedBody, options: options);
     return response;
+  }
+
+  ResponseError handleError(DioError e, String entity, {int? id}) {
+    bool isTimeout = true;
+    String msg = '';
+    switch (e.type) {
+      case DioErrorType.connectTimeout:
+        msg += "¡Tiempo de conexión al servidor agotado!";
+        break;
+      case DioErrorType.receiveTimeout:
+        msg += "¡Tiempo de espera agotado del servidor!";
+        break;
+      default:
+        isTimeout = false;
+        if (e.response != null) {
+          if (e.response!.data['Message'] != null) {
+            if (e.response!.data['ExceptionMessage'] != null) {
+              final err = e.response!.data['ExceptionMessage'];
+              msg += "$err";
+            } else {
+              msg += e.response!.data['Message'];
+            }
+          } else if (e.response!.data['error_description'] != null) {
+            msg = e.response!.data['error_description'];
+          }
+        } else {
+          msg += '¡No se puede conectar al servidor!';
+        }
+        break;
+    }
+    return ResponseError(isTimeout, msg);
   }
 }

@@ -135,6 +135,7 @@ class LocationService {
       polylineId: PolylineId('_kPolyline_$id'),
       points: points,
       color: color,
+      width: 4,
     );
 
     return polyline;
